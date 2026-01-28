@@ -1,0 +1,12 @@
+# Frontend
+
+React + Vite + Tailwind CSS + shadcn/ui
+
+## Setup
+
+```bash
+npm install
+npm run dev
+```
+
+Visit `http://localhost:5173`

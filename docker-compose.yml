@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: arches-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+    networks:
+      - arches-network
+
+  backend:
+    build: ./backend
+    container_name: arches-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app
+    networks:
+      - arches-network
+    environment:
+      - PYTHONUNBUFFERED=1
+
+networks:
+  arches-network:
+    driver: bridge

@@ -1,0 +1,12 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".mule": true
+  },
+  "snyk.advanced.organization": "1da83d9c-7c4d-4f0e-9645-b09e541b395c",
+  "snyk.advanced.autoSelectOrganization": true
+}

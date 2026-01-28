@@ -1,0 +1,19 @@
+# Backend
+
+FastAPI + Python
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+API runs on `http://localhost:8000`
+
+## Endpoints
+
+- `GET /` - Health check
+- `GET /visitation/stats` - Overall statistics
+- `GET /visitation/timeseries` - Time series data for D3
+
