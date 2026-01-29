@@ -10,5 +10,40 @@ venv/
 .env
 .DS_Store
 node_modules/
-dist/
 *.log
+
+# Frontend specific
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/coverage/
+frontend/test-results/
+
+# Backend specific
+backend/__pycache__/
+backend/*.db
+backend/venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Documentation files that are generated/temporary
+AI_IMPLEMENTATION_SUMMARY.md
+AI_SETUP_GUIDE.md
+QUICK_START_AI.md
+TYPESCRIPT_MIGRATION.md
+.hintrc
+
+# Test outputs
+frontend/test-results/
+

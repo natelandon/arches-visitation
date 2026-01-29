@@ -3,11 +3,12 @@ import { useThemeStore } from './store/themeStore'
 import { useDataStore } from './store/dataStore'
 import Dashboard from './components/Dashboard'
 import Header from './components/Header'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
-function App() {
-  const { darkMode } = useThemeStore()
-  const { fetchData } = useDataStore()
-  const [loading, setLoading] = useState(true)
+function App(): JSX.Element {
+  const darkMode = useThemeStore((state) => state.darkMode)
+  const fetchData = useDataStore((state) => state.fetchData)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const root = document.documentElement
@@ -28,7 +29,7 @@ function App() {
           const state = useDataStore.getState()
           
           if (state.visitation.length > 0) {
-            const testDate = state.visitation[Math.floor(state.visitation.length / 2)].date
+            const testDate = new Date(state.visitation[Math.floor(state.visitation.length / 2)].date)
             state.setHoveredDate(testDate)
           }
         }, 500)
@@ -42,16 +43,25 @@ function App() {
   }, [fetchData])
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
-      <Header />
-      {loading ? (
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-lg text-muted-foreground">Loading data...</div>
-        </div>
-      ) : (
-        <Dashboard />
-      )}
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+        <Header />
+        {loading ? (
+          <div className="flex items-center justify-center h-screen">
+            <div
+              className="text-lg text-muted-foreground"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              Loading data...
+            </div>
+          </div>
+        ) : (
+          <Dashboard />
+        )}
+      </div>
+    </ErrorBoundary>
   )
 }
 

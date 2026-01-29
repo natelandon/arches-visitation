@@ -34,7 +34,40 @@ def load_all_csv_data():
         logger.warning("No CSV files found in data directory")
         return
     
-    for csv_file in csv_files:
+    # Separate annual and monthly files
+    monthly_files = []
+    annual_files = []
+    other_files = []
+    
+    for f in csv_files:
+        if 'Monthly' in f.name or 'Month' in f.name:
+            monthly_files.append(f)
+        elif 'Annual' in f.name:
+            annual_files.append(f)
+        else:
+            other_files.append(f)
+    
+    # Process monthly files first to get their year coverage
+    monthly_years = set()
+    for csv_file in monthly_files:
+        try:
+            logger.info(f"Loading {csv_file.name}...")
+            years = load_single_csv(db, csv_file)
+            if years:
+                monthly_years.update(years)
+        except Exception as e:
+            logger.error(f"Error loading {csv_file.name}: {e}")
+    
+    # Process annual files, but skip years already covered by monthly data
+    for csv_file in annual_files:
+        try:
+            logger.info(f"Loading {csv_file.name}...")
+            load_single_csv(db, csv_file, skip_years=monthly_years)
+        except Exception as e:
+            logger.error(f"Error loading {csv_file.name}: {e}")
+    
+    # Process remaining files
+    for csv_file in other_files:
         try:
             logger.info(f"Loading {csv_file.name}...")
             load_single_csv(db, csv_file)
@@ -44,15 +77,25 @@ def load_all_csv_data():
     db.close()
     logger.info("Data loading complete")
 
-def load_single_csv(db, csv_path: Path):
-    """Load a single CSV file with intelligent header detection"""
+def load_single_csv(db, csv_path: Path, skip_years: set = None):
+    """Load a single CSV file with intelligent header detection
+    
+    Args:
+        skip_years: Set of years to skip (used to avoid duplicates between annual and monthly data)
+    
+    Returns:
+        Set of years loaded from this file
+    """
+    if skip_years is None:
+        skip_years = set()
+    
     # Skip if already loaded
     existing = db.query(VisitationRecord).filter(
         VisitationRecord.data_source == csv_path.name
     ).first()
     if existing:
         logger.info(f"Skipping {csv_path.name} - already loaded")
-        return
+        return set()
     
     # Try different skip rows to find proper headers
     df = None
@@ -64,7 +107,7 @@ def load_single_csv(db, csv_path: Path):
             if len(df_temp.columns) > 1:
                 # Check if this looks like usable data
                 cols_str = " ".join(df_temp.columns).lower()
-                if any(x in cols_str for x in ['visitor', 'recreation', 'year', 'month', 'date']):
+                if any(x in cols_str for x in ['visitor', 'recreation', 'year', 'month', 'date', 'jan', 'feb']):
                     df = pd.read_csv(csv_path, skiprows=skip_rows)
                     skip_rows_used = skip_rows
                     break
@@ -73,103 +116,144 @@ def load_single_csv(db, csv_path: Path):
     
     if df is None or len(df) == 0:
         logger.info(f"Could not parse {csv_path.name}")
-        return
+        return set()
     
     # Normalize column names
     df.columns = df.columns.str.lower().str.strip()
     
-    # Find the relevant columns
-    date_col = None
-    visitor_col = None
-    month_col = None
-    year_col = None
-    
-    for col in df.columns:
-        col_lower = col.lower()
-        if 'year' in col_lower:
-            year_col = col
-        if 'month' in col_lower or col_lower == 'textbox33':
-            month_col = col
-        if 'date' in col_lower:
-            date_col = col
-        if 'visitor' in col_lower or 'recreation' in col_lower:
-            if visitor_col is None:  # Take first matching column
-                visitor_col = col
-    
-    # If no visitor column found, skip
-    if visitor_col is None:
-        logger.info(f"Skipping {csv_path.name} - no visitor column found")
-        return
+    # Check if this is a monthly format (Year + JAN, FEB, MAR, etc.)
+    month_names = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    has_month_columns = any(month in df.columns for month in month_names)
     
     records = []
+    years_loaded = set()
     
-    for idx, row in df.iterrows():
-        try:
-            # Parse visitors
-            visitors_val = row[visitor_col]
-            if pd.isna(visitors_val):
-                continue
-                
-            visitors_str = str(visitors_val).strip()
-            # Remove commas and other formatting
-            visitors_str = visitors_str.replace(',', '').replace('%', '')
-            
+    if has_month_columns:
+        # Handle monthly data format (Year column + month columns)
+        logger.info(f"Detected monthly format for {csv_path.name}")
+        
+        for idx, row in df.iterrows():
             try:
-                visitors = int(float(visitors_str))
-            except:
+                if pd.isna(row.get('year')):
+                    continue
+                    
+                year = int(float(row['year']))
+                
+                # Skip years that should be excluded
+                if year in skip_years:
+                    continue
+                
+                years_loaded.add(year)
+                
+                # Process each month column
+                for month_idx, month_name in enumerate(month_names, 1):
+                    if month_name not in df.columns:
+                        continue
+                    
+                    visitors_val = row[month_name]
+                    if pd.isna(visitors_val):
+                        continue
+                    
+                    visitors_str = str(visitors_val).strip()
+                    # Remove commas and other formatting
+                    visitors_str = visitors_str.replace(',', '').replace('%', '')
+                    
+                    try:
+                        visitors = int(float(visitors_str))
+                    except:
+                        continue
+                    
+                    if visitors < 0:
+                        continue
+                    
+                    date = datetime(year, month_idx, 1)
+                    
+                    record = VisitationRecord(
+                        date=date,
+                        visitors=visitors,
+                        month=month_idx,
+                        year=year,
+                        day_of_week=date.weekday(),
+                        data_source=csv_path.name
+                    )
+                    records.append(record)
+                    
+            except Exception as e:
+                logger.debug(f"Skipping row {idx} in {csv_path.name}: {str(e)[:50]}")
                 continue
-            
-            if visitors < 0:
-                continue
-            
-            # Determine date
-            date = None
-            
-            if year_col and not pd.isna(row.get(year_col)):
+    else:
+        # Handle annual/other formats
+        logger.info(f"Detected other format for {csv_path.name}")
+        
+        # Find the relevant columns
+        visitor_col = None
+        year_col = None
+        
+        for col in df.columns:
+            col_lower = col.lower()
+            if 'year' in col_lower:
+                year_col = col
+            if 'visitor' in col_lower or 'recreation' in col_lower:
+                if visitor_col is None:  # Take first matching column
+                    visitor_col = col
+        
+        # If no visitor column found, skip
+        if visitor_col is None:
+            logger.info(f"Skipping {csv_path.name} - no visitor column found")
+            return set()
+        
+        for idx, row in df.iterrows():
+            try:
+                # Parse visitors
+                visitors_val = row[visitor_col]
+                if pd.isna(visitors_val):
+                    continue
+                    
+                visitors_str = str(visitors_val).strip()
+                # Remove commas and other formatting
+                visitors_str = visitors_str.replace(',', '').replace('%', '')
+                
                 try:
-                    year = int(float(row[year_col]))
-                    # Check if we have month
-                    if month_col and not pd.isna(row.get(month_col)):
-                        month_val = row[month_col]
-                        # Try to parse month from textbox33 format (e.g., "12/2025")
-                        if isinstance(month_val, str) and '/' in month_val:
-                            parts = month_val.split('/')
-                            month = int(parts[0])
-                            date = datetime(year, month, 1)
-                        else:
-                            try:
-                                month = int(float(month_val))
-                                date = datetime(year, month, 1)
-                            except:
-                                # Use July 1 as default for annual data
-                                date = datetime(year, 7, 1)
-                    else:
-                        # No month, use July 1st for annual data
+                    visitors = int(float(visitors_str))
+                except:
+                    continue
+                
+                if visitors < 0:
+                    continue
+                
+                # Determine date
+                date = None
+                
+                if year_col and not pd.isna(row.get(year_col)):
+                    try:
+                        year = int(float(row[year_col]))
+                        
+                        # Skip years that should be excluded
+                        if year in skip_years:
+                            continue
+                        
+                        years_loaded.add(year)
+                        # Use July 1 as default for annual data
                         date = datetime(year, 7, 1)
-                except:
+                    except:
+                        continue
+                
+                if date is None:
                     continue
-            elif date_col and not pd.isna(row.get(date_col)):
-                try:
-                    date = pd.to_datetime(row[date_col])
-                except:
-                    continue
-            
-            if date is None:
+                
+                record = VisitationRecord(
+                    date=date,
+                    visitors=visitors,
+                    month=date.month,
+                    year=date.year,
+                    day_of_week=date.weekday(),
+                    data_source=csv_path.name
+                )
+                records.append(record)
+                
+            except Exception as e:
+                logger.debug(f"Skipping row {idx} in {csv_path.name}: {str(e)[:50]}")
                 continue
-            
-            record = VisitationRecord(
-                date=date,
-                visitors=visitors,
-                month=date.month,
-                year=date.year,
-                day_of_week=date.weekday(),
-                data_source=csv_path.name
-            )
-            records.append(record)
-            
-        except Exception as e:
-            logger.debug(f"Skipping row {idx} in {csv_path.name}: {str(e)[:50]}")
-            continue
     
     if records:
         # Remove duplicates based on (date, data_source)
@@ -185,3 +269,5 @@ def load_single_csv(db, csv_path: Path):
         logger.info(f"Loaded {len(records)} records from {csv_path.name}")
     else:
         logger.info(f"No valid records found in {csv_path.name}")
+    
+    return years_loaded

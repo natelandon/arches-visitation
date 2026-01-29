@@ -1,156 +1,238 @@
-# Arches National Park Visitation Analytics
+# Arches Visitation Analytics Dashboard
 
-A full-stack data visualization project showcasing 50+ years of visitation data from Arches National Park using React, D3.js, and FastAPI.
+A modern, full-stack analytics dashboard for visualizing park visitation data with AI-powered insights. Built with React, TypeScript, FastAPI, and Three.js for interactive 3D visualizations.
 
-## Features
+## 🚀 Features
 
-- **React + Vite**: Fast, modern frontend development
-- **D3.js**: Interactive time-series and monthly heatmap visualizations
-- **Tailwind CSS + shadcn/ui**: Professional, accessible UI with dark mode
-- **FastAPI**: High-performance Python backend with SQLite database
-- **SQLAlchemy ORM**: Type-safe database queries
-- **Automatic CSV parsing**: Loads all CSV files from data directory on startup
-- **Docker Compose**: One-command deployment
+- **React 18 + TypeScript**: Type-safe, modern frontend
+- **Vite**: Lightning-fast build tool and dev server
+- **D3.js & Three.js**: Interactive data visualizations and 3D charts
+- **AI-Powered Insights**: Mistral LLM integration with explanation caching
+- **Zustand State Management**: Efficient, lightweight state management
+- **Tailwind CSS**: Beautiful, responsive design
+- **FastAPI Backend**: High-performance Python web framework
+- **Comprehensive Testing**: Vitest (unit) + Playwright (E2E)
+- **SQLite Database**: Auto-initialized data storage
+- **Dark/Light Theme**: Accessible UI with theme switching
 
-## Quick Start
+## 📋 Prerequisites
 
-### With Docker (Recommended)
+- **Python 3.8+** (for backend)
+- **Node.js 16+** (for frontend# Arches Visitation Analytics Dashboard
 
-```bash
-docker-compose up
+A modern, full-stack analytics dk 
+A modern, full-stack analytics dashbo`ba
+## 🚀 Features
+
+- **React 18 + TypeScript**: Type-safe, modern frontend
+- **Vite**: Lightning-fast build tool and dev server
+- **D3.js & Three.js**: Interactive data visualizations and 3fsS
+- **Re://ollama.a- **Vite**: Lightning-fast build tool and dev server
+-ro- **D3.js & Three.js**: Interactive data visualizaton- **AI-Powered Insights**: Mistral LLM integration with explanation in- **Zustand State Management**: Efficient, lightweight state management
+-  F- **Tailwind CSS**: Beautiful, responsive design
+- **FastAPI Backend**:/- **FastAPI Backend**: High-performance Python : - **Comprehensive Testing**: Vitest (unit) + Playwrightt Test- **SQLite Database**: Auto-initialized data storage
+- **Darnd- **Danation caching
+- React component behavior
+- Sta
+## 📋 Prerequisites
+
+- **Python 3.8+** (for backend)
+-run
+- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
+A modern, full-stack analytics dk 
+A modern, full-stack analytics da frA modern, full-stack analytics da# ## 🚀 Features
+
+- **React 18 + TypeScta
+- **React??─ fr- **Vite**: Lightning-fast build tool and dev server
+-ip- **D3.js & Three.js**: Interactive data visualizaten- **Re://ollama.a- **Vite**: Lightning-fast build tool and dev ??ro- **D3.js & Three.js**: Interactive data visualizaton- **AI-Powerha-  F- **Tailwind CSS**: Beautiful, responsive design
+- **FastAPI Backend**:/- **FastAPI Backend**: High-performance Python : - **Comprehensive Testing**: Vitest (unit) + Playwrightt Test- **SQLite??- **FastAPI Backend**:/- **FastAPI Backend**: High-I - **Darnd- **Danation caching
+- React component behavior
+- Sta
+## 📋 Prerequisites
+
+- **Python 3.8+** (for backend)
+-run
+- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
+A modeex- React component behavior
+- C- Sta
+## 📋 Prere??─ ma## ?x
+- **Python 3.8+** (ts/
+│   │   └── e2e/
+│ - *??       └── smoke.spec.ts      # Playwright E2E teA modern, full-stack analytics da?- **React 18 + TypeScta
+- **React??─ fr- **Vite**: Lightning-fast build tool and decon- **React?   └── .-ip- **D3.js & Three.js**: Interactive data visualizaten# FastAPI + Py- **FastAPI Backend**:/- **FastAPI Backend**: High-performance Python : - **Comprehensive Testing**: Vitest (unit) + Playwrightt Test- **SQLite??- **FastAPI Backend**:/- **FastAPI Backend**: High-I - **Darnd- **Danation caching
+- React compon  - React component behavior
+- Sta
+## 📋 Prerequisites
+
+- **Python 3.8+** (for backend)
+-run
+- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
+A modeex- React component behavior
+- C- Sta
+## 📋 Prere??─          # Auto-g- Sta
+## 📋 Prerequisitre## ?- **Python 3.8+** (ore-run
+- **Python 3.8+** (ver- *  - *  A modeex- React component behavior
+- C- Sta
+## 📋 P  - C- Sta
+## 📋 Prere??─ ma##  d## 📋  - **Python 3.8+** (ts/
+│el│   │   └──
+`│ - *??       └── S- **React??─ fr- **Vite**: Lightning-fast build tool and decon- **React?   └── .-ip- **D3.js & Three.js**: Interaccr- React compon  - React component behavior
+- Sta
+## 📋 Prerequisites
+
+- **Python 3.8+** (for backend)
+-run
+- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
+A modeex- React component behavior
+- C- Sta
+## 📋 Prere??─          # Auto-g- Sta
+## 📋 Prerequisitre## ?- **Python 3.8+** (ore-run
+- **Python 3.8+** (ver- *  - *  A modeex- React component behavior
+- C- Sta
+##  |- Sta
+## 📋 Prerequisites
+
+- **Python 3ti## ? 
+- **Python 3.8+** (erv-run
+- **Py?? Dashboard Features- *##A modeex- React component behavior
+- C- Sta
+## 📋 P  - C- Sta
+## 📋 Prere??─        ## 📋h/## 📋 Prerequisitre## ?- **Python 3s
+- **Python 3.8+** (ver- *  - *  A modeex- React compoer- C- Sta
+## 📋 P  - C- Sta
+## 📋 Prere??─ ma##  d## 📋  -ve## 📋ls## 📋 Prere??─*
+│el│   │   └──
+`│ - *??       nkings
+   - Pe`│ - *??       └─?D- Sta
+## 📋 Prerequisites
+
+- **Python 3.8+** (for backend)
+-run
+- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
+A modeex- React component behavior
+- C- Sta
+## 📋 Prere??─          ge## ?e
+- **Pyhts for each cha-run
+- **Python 3.8+** (ver- *PersistA modeex- React component behavior
+- C- Sta
+## 📋 Prm- C- Sta
+## 📋 Prere??─      ir## 📋re## 📋 Prerequisitre## ?- **Python 3g*- **Python 3.8+** (ver- *  - *  A modeex- React compo ? C- Sta
+##  |- Sta
+## 📋 Prerequisites
+
+- **Python 3ti## ? 
+-at##  |- ur## ?ual 
+- **Python 3ti## ?ver- **Python 3.8st mont- **Py?? Dashboard Featur/t- C- Sta
+## 📋 P  - C- Sta
+## 📋 Prere??─        ## 📋h/#GE## 📋ta## 📋 Prere??─rn- **Python 3.8+** (ver- *  - *  A modeex- React compoer- C- Sta
+## 📋 P  at## 📋 P  - C- Sta
+## 📋 Prere??─ ma##  d## 📋  -ve## ?a## ?/explain-chart
+│el│   │   └──
+`│ - *??       nkings
+   - Pe`│ - s:`│available": boolean, "e   - Pe`│ - *??     ``## 📋 Prerequisites
+
+- **Python 3.8+th
+- **Python 3.8+** (s":-run
+- **Python 3.8+** (ver- *um- * }A modeex- React component behavior
+- C- Sta
+## 📋 Pt - C- Sta
+## 📋 Prere??─      en## 📋ec- **Pyhts for each cha-run
+- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
+## 📋 Prm- C- Sta
+## 📋 Prere???```
+
+### Frontend Environment ## 📋 Prere??─`.##  |- Sta
+## 📋 Prerequisites
+
+- **Python 3ti## ? 
+-at##  |- ur## ?ual 
+- **Python 3ti## ?ver- **Python 3.8st mont- **Py?? Dashboarre## 📋 Pde
+- **Python 3ti## ?
+- -at##  |- ur## ?`d- **Pythisitors`, `month## 📋 P  - C- Sta
+## 📋 Prere??─        ## 📋h/#GE## 📋ta## ?Troubl## 📋 Prere??─ke## 📋 P  at## 📋 P  - C- Sta
+## 📋 Prere??─ ma##  d## 📋  -ve## ?a## ?/explain-chart
+│el│   │   └──
+`│ oa## 📋 Prere??─ ma##  d## ?f│el│   │   └──
+`│ - *??       nkings
+   - Pe`│
+
+`│ - *??       nkings
+ **   - Pe`│ - s:`│Olla
+- **Python 3.8+th
+- **Python 3.8+** (s":-run
+- **Python 3.8+** (ver- *um- * }A modeex-ve
+- **Python 3.8+*mo- **Python 3.8+** (ver- *``- C- Sta
+## 📋 Pt - C- Sta
+## 📋 Prere??─      en## 📋ec-np## 📋ev## 📋 Prere??─`
+- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
+## 📋 Prm- Cdu## 📋 Prm- C- Sta
+## 📋 Prere???```
+
+##ts## 📋 Prere???`h
+
+### Frontend Envirywr## 📋 Prerequisitn test:e2e
 ```
 
-Frontend: http://localhost:5173  
-Backend: http://localhost:8000  
-Database: SQLite (auto-initialized)
+## 📝 Development N
+- **Python 3ti## ?**:-at##  |- ur## ?ge- **Python 3ti## ?ver v- **Python 3ti## ?
+- -at##  |- ur## ?`d- **Pythisitors`, `month## ?S- -at##  |- ur## ? ## 📋 Prere??─        ## 📋h/#GE## 📋ta## ?Troubl## ? ## 📋 Prere??─ ma##  d## 📋  -ve## ?a## ?/explain-chart
+│el│   │   └──
+`│ oa## 📋 Prerer│el│   │   └──
+`│ oa## ?ated documentation exclu`│ oa## 📋 Prere??─- `│ - *??       nkings
+   - Pe`│
 
-### Manual Setup
+`│ - *??       nkings
+ ** ec   - Pe`│
 
-**Backend:**
-```bash
-cd backend
-pip install -r requirements.txt
-python main.py
-```
+`│ - *?# 
+`│ - e Exc **   - Pe`│ - s:`?c- **Python 3.8+th
+- **Pyth`A- **Python 3.8+*ra- **Python 3.8+** (ver- *a/- **Python 3.8+*mo- **Python 3.8+** (ver- es## 📋 Pt - C- Sta
+## 📋 Prere??─      en## ? ## ?`, `.DS_Store`- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
+## 📋 Prm- Cdu##  P## 📋 Prm- Cdu## 📋 Prm- C- Sta
+## 📋 ak## 📋 Prere???```
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+##ts## 📋 g)
+##ts## 📋 Prere?cac
+### Frontend Envirywravi```
 
-### Using Development Script
+## 📝 Development N
+- **Python 3ti## ?**:ro
+#cti- **Python 3ti## ?*nd- -at##  |- ur## ?`d- **Pythisito requests
 
-```bash
-chmod +x dev.sh
+## 🤝 Contributing
 
-# Install all dependencies
-./dev.sh install
+1. Create feature │el│   │   └──
+`│ oa## 📋 Prerer│el│   │   └──
+`│ oa## ?ated documentation exclu`│ oa## 📋 Prere??─- `│ - *??       nkings
+   - Pe`│
 
-# Run locally (frontend + backend)
-./dev.sh dev
+`│ - *??       nkings
+ **et`│ oa## 📋 Prerer│e*V`│ oa## ?ated documentation exclu`│ oa##ar   - Pe`│
 
-# Run with Docker
-./dev.sh dev-docker
+`│ - *??       nkings
+ ** ec   - Pe`│
 
-# Check database status
-./dev.sh db-status
+`│ - *?# 
+`│ - e Exc **   of
+`│ -73` an ** ec   - Pe`│
 
-# Reset database
-./dev.sh db-reset
+`?C
+`│ - *?# 
+`?Iss`│ - e Eio- **Pyth`A- **Python 3.8+*ra- **Python 3.8+** (ver- r ## 📋 Prere??─      en## ? ## ?`, `.DS_Store`- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
+## 📋 Prm- Cdu# F## 📋 Prm- Cdu##  P## 📋 Prm- Cdu## 📋 Prm- C- Sta
+## 📋 ak## 📋 Prere???```
 
-# Clean up
-./dev.sh clean
-```
+##ts## ?### 📋 ak## 📋 Prere???```
 
-## Project Structure
+React Documentation](http
+##ts## 📋 g)
+##ts## ?ocume##ts## 📋 Ps:### Frontend Envirywom
+## 📝 Development N
+- *ite- **Python 3ti## ?*ht#cti- **Python 3ti## ?/z
+## 🤝 Contributing
 
-```
-arches-visitation/
-├── frontend/          # React + Vite application
-│   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── store/       # Zustand state management
-│   │   └── App.jsx
-│   └── package.json
-├── backend/           # FastAPI + SQLAlchemy server
-│   ├── main.py        # FastAPI app & endpoints
-│   ├── database.py    # SQLAlchemy models & setup
-│   ├── data_loader.py # CSV parsing & database loading
-│   └── requirements.txt
-├── data/              # CSV data files
-│   └── *.csv          # Your Arches visitation CSVs
-├── docker-compose.yml
-├── dev.sh            # Development helper script
-└── README.md
-```
+1. Create feature │el│   │
+## 📄 License
 
-## Data Format
 
-Place your Arches visitation CSVs in the `data/` directory. The backend will auto-detect and parse them on startup.
-
-Supported columns (any case-insensitive):
-- `date` - Date in any format pandas can parse (required)
-- `visitors` / `recreation visitors` - Number of visitors (required)
-- `month`, `year`, `day_of_week` - Optional, auto-calculated if missing
-
-The loader will intelligently detect column names and skip invalid rows.
-
-## Database
-
-- **Type**: SQLite
-- **Location**: `backend/arches.db` (created automatically)
-- **Auto-initialization**: Database tables created on first startup
-- **Auto-loading**: All CSV files in `data/` directory loaded on startup
-- **Duplicate prevention**: Already-loaded files are skipped
-
-### Database Schema
-
-```
-visitation_records
-├── id (Integer, PK)
-├── date (DateTime, indexed)
-├── visitors (Integer)
-├── month (Integer)
-├── year (Integer, indexed)
-├── day_of_week (Integer)
-├── data_source (String) - Which CSV file
-└── created_at (DateTime)
-```
-
-## API Endpoints
-
-- `GET /` - API info
-- `GET /health` - Health check with record count
-- `GET /visitation/stats` - Summary statistics
-- `GET /visitation/timeseries?start_year=YYYY&end_year=YYYY` - Monthly aggregated data for D3
-- `GET /visitation/heatmap` - Heatmap data by year and month
-
-## Development
-
-- React code updates hot-reload via Vite
-- Backend changes require container restart
-- D3 visualizations update via shared Zustand store
-- Database persists across restarts
-
-## Troubleshooting
-
-**Database not loading data:**
-```bash
-./dev.sh db-status  # Check if records are loaded
-./dev.sh db-reset   # Clear and reload
-```
-**Port already in use:**
-Edit `docker-compose.yml` or kill existing processes:
-```bash
-lsof -i :5173  # Check frontend
-lsof -i :8000  # Check backend
-```
-
-**CSV not being parsed:**
-Check backend logs for column detection. Ensure CSV has `date` and `visitors`/`recreation` columns.
-
-## License
-
-MIT
+1. Create feature ere]
