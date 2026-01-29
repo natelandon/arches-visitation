@@ -52,187 +52,112 @@ A modern, full-stack analytics da frA modern, full-stack analytics da# ## 🚀 F
 
 - **Python 3.8+** (for backend)
 -run
-- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
-A modeex- React component behavior
-- C- Sta
-## 📋 Prere??─ ma## ?x
-- **Python 3.8+** (ts/
-│   │   └── e2e/
-│ - *??       └── smoke.spec.ts      # Playwright E2E teA modern, full-stack analytics da?- **React 18 + TypeScta
-- **React??─ fr- **Vite**: Lightning-fast build tool and decon- **React?   └── .-ip- **D3.js & Three.js**: Interactive data visualizaten# FastAPI + Py- **FastAPI Backend**:/- **FastAPI Backend**: High-performance Python : - **Comprehensive Testing**: Vitest (unit) + Playwrightt Test- **SQLite??- **FastAPI Backend**:/- **FastAPI Backend**: High-I - **Darnd- **Danation caching
-- React compon  - React component behavior
-- Sta
-## 📋 Prerequisites
+# Arches Visitation Analytics Dashboard
 
-- **Python 3.8+** (for backend)
--run
-- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
-A modeex- React component behavior
-- C- Sta
-## 📋 Prere??─          # Auto-g- Sta
-## 📋 Prerequisitre## ?- **Python 3.8+** (ore-run
-- **Python 3.8+** (ver- *  - *  A modeex- React component behavior
-- C- Sta
-## 📋 P  - C- Sta
-## 📋 Prere??─ ma##  d## 📋  - **Python 3.8+** (ts/
-│el│   │   └──
-`│ - *??       └── S- **React??─ fr- **Vite**: Lightning-fast build tool and decon- **React?   └── .-ip- **D3.js & Three.js**: Interaccr- React compon  - React component behavior
-- Sta
-## 📋 Prerequisites
+A full-stack analytics dashboard for visualizing park visitation data with interactive charts and AI-powered insights. Built with React, TypeScript, FastAPI, D3, and Three.js.
 
-- **Python 3.8+** (for backend)
--run
-- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
-A modeex- React component behavior
-- C- Sta
-## 📋 Prere??─          # Auto-g- Sta
-## 📋 Prerequisitre## ?- **Python 3.8+** (ore-run
-- **Python 3.8+** (ver- *  - *  A modeex- React component behavior
-- C- Sta
-##  |- Sta
-## 📋 Prerequisites
+## Highlights
 
-- **Python 3ti## ? 
-- **Python 3.8+** (erv-run
-- **Py?? Dashboard Features- *##A modeex- React component behavior
-- C- Sta
-## 📋 P  - C- Sta
-## 📋 Prere??─        ## 📋h/## 📋 Prerequisitre## ?- **Python 3s
-- **Python 3.8+** (ver- *  - *  A modeex- React compoer- C- Sta
-## 📋 P  - C- Sta
-## 📋 Prere??─ ma##  d## 📋  -ve## 📋ls## 📋 Prere??─*
-│el│   │   └──
-`│ - *??       nkings
-   - Pe`│ - *??       └─?D- Sta
-## 📋 Prerequisites
+- React 18 + TypeScript frontend
+- Vite build system
+- D3 and Three.js visualizations
+- AI-powered explanations (Ollama/Mistral)
+- Zustand state management
+- Tailwind CSS styling
+- FastAPI backend
+- Vitest unit tests + Playwright E2E tests
+- SQLite storage
+- Dark/light theme
 
-- **Python 3.8+** (for backend)
--run
-- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
-A modeex- React component behavior
-- C- Sta
-## 📋 Prere??─          ge## ?e
-- **Pyhts for each cha-run
-- **Python 3.8+** (ver- *PersistA modeex- React component behavior
-- C- Sta
-## 📋 Prm- C- Sta
-## 📋 Prere??─      ir## 📋re## 📋 Prerequisitre## ?- **Python 3g*- **Python 3.8+** (ver- *  - *  A modeex- React compo ? C- Sta
-##  |- Sta
-## 📋 Prerequisites
+## Requirements
 
-- **Python 3ti## ? 
--at##  |- ur## ?ual 
-- **Python 3ti## ?ver- **Python 3.8st mont- **Py?? Dashboard Featur/t- C- Sta
-## 📋 P  - C- Sta
-## 📋 Prere??─        ## 📋h/#GE## 📋ta## 📋 Prere??─rn- **Python 3.8+** (ver- *  - *  A modeex- React compoer- C- Sta
-## 📋 P  at## 📋 P  - C- Sta
-## 📋 Prere??─ ma##  d## 📋  -ve## ?a## ?/explain-chart
-│el│   │   └──
-`│ - *??       nkings
-   - Pe`│ - s:`│available": boolean, "e   - Pe`│ - *??     ``## 📋 Prerequisites
+- Node.js 22.12+ (see .nvmrc)
+- Python 3.8+
 
-- **Python 3.8+th
-- **Python 3.8+** (s":-run
-- **Python 3.8+** (ver- *um- * }A modeex- React component behavior
-- C- Sta
-## 📋 Pt - C- Sta
-## 📋 Prere??─      en## 📋ec- **Pyhts for each cha-run
-- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
-## 📋 Prm- C- Sta
-## 📋 Prere???```
+## Quick Start
 
-### Frontend Environment ## 📋 Prere??─`.##  |- Sta
-## 📋 Prerequisites
+### 1) Backend
 
-- **Python 3ti## ? 
--at##  |- ur## ?ual 
-- **Python 3ti## ?ver- **Python 3.8st mont- **Py?? Dashboarre## 📋 Pde
-- **Python 3ti## ?
-- -at##  |- ur## ?`d- **Pythisitors`, `month## 📋 P  - C- Sta
-## 📋 Prere??─        ## 📋h/#GE## 📋ta## ?Troubl## 📋 Prere??─ke## 📋 P  at## 📋 P  - C- Sta
-## 📋 Prere??─ ma##  d## 📋  -ve## ?a## ?/explain-chart
-│el│   │   └──
-`│ oa## 📋 Prere??─ ma##  d## ?f│el│   │   └──
-`│ - *??       nkings
-   - Pe`│
-
-`│ - *??       nkings
- **   - Pe`│ - s:`│Olla
-- **Python 3.8+th
-- **Python 3.8+** (s":-run
-- **Python 3.8+** (ver- *um- * }A modeex-ve
-- **Python 3.8+*mo- **Python 3.8+** (ver- *``- C- Sta
-## 📋 Pt - C- Sta
-## 📋 Prere??─      en## 📋ec-np## 📋ev## 📋 Prere??─`
-- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
-## 📋 Prm- Cdu## 📋 Prm- C- Sta
-## 📋 Prere???```
-
-##ts## 📋 Prere???`h
-
-### Frontend Envirywr## 📋 Prerequisitn test:e2e
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python3 -m uvicorn main:app --reload
 ```
 
-## 📝 Development N
-- **Python 3ti## ?**:-at##  |- ur## ?ge- **Python 3ti## ?ver v- **Python 3ti## ?
-- -at##  |- ur## ?`d- **Pythisitors`, `month## ?S- -at##  |- ur## ? ## 📋 Prere??─        ## 📋h/#GE## 📋ta## ?Troubl## ? ## 📋 Prere??─ ma##  d## 📋  -ve## ?a## ?/explain-chart
-│el│   │   └──
-`│ oa## 📋 Prerer│el│   │   └──
-`│ oa## ?ated documentation exclu`│ oa## 📋 Prere??─- `│ - *??       nkings
-   - Pe`│
+Backend runs at http://localhost:8000
 
-`│ - *??       nkings
- ** ec   - Pe`│
+### 2) Frontend
 
-`│ - *?# 
-`│ - e Exc **   - Pe`│ - s:`?c- **Python 3.8+th
-- **Pyth`A- **Python 3.8+*ra- **Python 3.8+** (ver- *a/- **Python 3.8+*mo- **Python 3.8+** (ver- es## 📋 Pt - C- Sta
-## 📋 Prere??─      en## ? ## ?`, `.DS_Store`- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
-## 📋 Prm- Cdu##  P## 📋 Prm- Cdu## 📋 Prm- C- Sta
-## 📋 ak## 📋 Prere???```
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
 
-##ts## 📋 g)
-##ts## 📋 Prere?cac
-### Frontend Envirywravi```
+Frontend runs at http://127.0.0.1:5173
 
-## 📝 Development N
-- **Python 3ti## ?**:ro
-#cti- **Python 3ti## ?*nd- -at##  |- ur## ?`d- **Pythisito requests
+## AI Explanations (Optional)
 
-## 🤝 Contributing
+Install Ollama and the Mistral model:
 
-1. Create feature │el│   │   └──
-`│ oa## 📋 Prerer│el│   │   └──
-`│ oa## ?ated documentation exclu`│ oa## 📋 Prere??─- `│ - *??       nkings
-   - Pe`│
+```bash
+ollama pull mistral
+ollama serve
+```
 
-`│ - *??       nkings
- **et`│ oa## 📋 Prerer│e*V`│ oa## ?ated documentation exclu`│ oa##ar   - Pe`│
+The frontend will call:
+- POST /api/ai/explain-chart
+- GET /api/ai/status
 
-`│ - *??       nkings
- ** ec   - Pe`│
+## Project Layout
 
-`│ - *?# 
-`│ - e Exc **   of
-`│ -73` an ** ec   - Pe`│
+```
+arches-visitation/
+  backend/
+  frontend/
+  data/
+  .nvmrc
+```
 
-`?C
-`│ - *?# 
-`?Iss`│ - e Eio- **Pyth`A- **Python 3.8+*ra- **Python 3.8+** (ver- r ## 📋 Prere??─      en## ? ## ?`, `.DS_Store`- **PythLL- **Python 3.8+** (ver- *ho- C- Sta
-## 📋 Prm- Cdu# F## 📋 Prm- Cdu##  P## 📋 Prm- Cdu## 📋 Prm- C- Sta
-## 📋 ak## 📋 Prere???```
+## Frontend Scripts
 
-##ts## ?### 📋 ak## 📋 Prere???```
+```bash
+npm run dev          # start dev server
+npm run build        # production build
+npm run preview      # preview build
+npm run test         # unit tests
+npm run test:e2e     # E2E tests
+```
 
-React Documentation](http
-##ts## 📋 g)
-##ts## ?ocume##ts## 📋 Ps:### Frontend Envirywom
-## 📝 Development N
-- *ite- **Python 3ti## ?*ht#cti- **Python 3ti## ?/z
-## 🤝 Contributing
+## Testing
 
-1. Create feature │el│   │
-## 📄 License
+- Unit tests: Vitest
+- E2E tests: Playwright
 
+```bash
+cd frontend
+npm run test
+npm run test:e2e
+```
 
-1. Create feature ere]
+## Environment Variables
+
+Frontend (.env.local):
+
+```
+VITE_API_URL=http://localhost:8000
+VITE_API_CACHE_TTL_MS=30000
+```
+
+## Notes
+
+- The frontend uses proxying for /api requests in dev.
+- Production builds are minified and chunked for faster loading.
+
+## License
+
+MIT
+- **Python 3.8+** (ver- *um- * }A modeex-ve
