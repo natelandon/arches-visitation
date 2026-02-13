@@ -1,163 +1,294 @@
 # Arches Visitation Analytics Dashboard
 
-A modern, full-stack analytics dashboard for visualizing park visitation data with AI-powered insights. Built with React, TypeScript, FastAPI, and Three.js for interactive 3D visualizations.
+A modern, full-stack analytics dashboard for visualizing park visitation data with interactive charts and AI-powered insights. Built with React, TypeScript, FastAPI, D3.js, and Three.js.
 
 ## 🚀 Features
 
-- **React 18 + TypeScript**: Type-safe, modern frontend
-- **Vite**: Lightning-fast build tool and dev server
-- **D3.js & Three.js**: Interactive data visualizations and 3D charts
-- **AI-Powered Insights**: Mistral LLM integration with explanation caching
-- **Zustand State Management**: Efficient, lightweight state management
-- **Tailwind CSS**: Beautiful, responsive design
-- **FastAPI Backend**: High-performance Python web framework
-- **Comprehensive Testing**: Vitest (unit) + Playwright (E2E)
-- **SQLite Database**: Auto-initialized data storage
-- **Dark/Light Theme**: Accessible UI with theme switching
+- **Interactive Visualizations**: D3.js time-series charts, monthly heatmaps, and Three.js 3D rankings
+- **AI-Powered Insights**: Natural language explanations of chart data using Ollama/Mistral
+- **Modern Tech Stack**: React 18, TypeScript, Vite, FastAPI, and SQLite
+- **Comprehensive Testing**: Vitest unit tests + Playwright E2E tests
+- **Responsive Design**: Tailwind CSS with dark/light theme support
+- **Efficient State Management**: Zustand for lightweight, performant state handling
+- **Docker Support**: Full containerization with Docker Compose
+- **Auto-Initialized Database**: SQLite with automatic data loading
+
+## 🛠️ Technologies Used
+
+### Frontend
+- **React** 18.2.0 - UI library
+- **TypeScript** 5.2.2 - Type-safe JavaScript
+- **Vite** 6.4.1 - Fast build tool and dev server
+- **D3.js** 7.8.5 - Data visualization library
+- **Three.js** 0.160.0 - 3D graphics library
+- **Zustand** 4.4.1 - State management
+- **Tailwind CSS** 3.3.5 - Utility-first CSS framework
+- **Radix UI** - Accessible component primitives
+- **Lucide React** - Icon library
+
+### Backend
+- **Python** 3.8+
+- **FastAPI** 0.104.1 - Modern Python web framework
+- **Uvicorn** 0.24.0 - ASGI server
+- **Pandas** 2.1.1 - Data manipulation
+- **NumPy** 1.26.2 - Numerical computing
+- **Pydantic** 2.5.0 - Data validation
+- **SQLAlchemy** 2.0.23 - SQL toolkit and ORM
+- **Alembic** 1.12.1 - Database migrations
+
+### Testing
+- **Vitest** 4.0.18 - Unit testing framework
+- **Playwright** 1.50.1 - End-to-end testing
+- **Testing Library** - React component testing
+
+### Infrastructure
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+- **SQLite** - Embedded database
+- **Ollama** - Local LLM inference (optional)
 
 ## 📋 Prerequisites
 
-- **Python 3.8+** (for backend)
-- **Node.js 16+** (for frontend# Arches Visitation Analytics Dashboard
+- **Node.js 22.12+** (see `.nvmrc`)
+- **Python 3.8+**
+- **Docker & Docker Compose** (optional, for containerized deployment)
+- **Ollama** (optional, for AI explanations)
 
-A modern, full-stack analytics dk 
-A modern, full-stack analytics dashbo`ba
-## 🚀 Features
+## 🚀 Quick Start
 
-- **React 18 + TypeScript**: Type-safe, modern frontend
-- **Vite**: Lightning-fast build tool and dev server
-- **D3.js & Three.js**: Interactive data visualizations and 3fsS
-- **Re://ollama.a- **Vite**: Lightning-fast build tool and dev server
--ro- **D3.js & Three.js**: Interactive data visualizaton- **AI-Powered Insights**: Mistral LLM integration with explanation in- **Zustand State Management**: Efficient, lightweight state management
--  F- **Tailwind CSS**: Beautiful, responsive design
-- **FastAPI Backend**:/- **FastAPI Backend**: High-performance Python : - **Comprehensive Testing**: Vitest (unit) + Playwrightt Test- **SQLite Database**: Auto-initialized data storage
-- **Darnd- **Danation caching
-- React component behavior
-- Sta
-## 📋 Prerequisites
+### Option 1: Docker Compose (Recommended)
 
-- **Python 3.8+** (for backend)
--run
-- **Python 3.8+** (ver- **Node.js 16+** (for frontenen
-A modern, full-stack analytics dk 
-A modern, full-stack analytics da frA modern, full-stack analytics da# ## 🚀 Features
+```bash
+# Start all services
+docker-compose up
 
-- **React 18 + TypeScta
-- **React??─ fr- **Vite**: Lightning-fast build tool and dev server
--ip- **D3.js & Three.js**: Interactive data visualizaten- **Re://ollama.a- **Vite**: Lightning-fast build tool and dev ??ro- **D3.js & Three.js**: Interactive data visualizaton- **AI-Powerha-  F- **Tailwind CSS**: Beautiful, responsive design
-- **FastAPI Backend**:/- **FastAPI Backend**: High-performance Python : - **Comprehensive Testing**: Vitest (unit) + Playwrightt Test- **SQLite??- **FastAPI Backend**:/- **FastAPI Backend**: High-I - **Darnd- **Danation caching
-- React component behavior
-- Sta
-## 📋 Prerequisites
+# Or run in detached mode
+docker-compose up -d
+```
 
-- **Python 3.8+** (for backend)
--run
-# Arches Visitation Analytics Dashboard
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-A full-stack analytics dashboard for visualizing park visitation data with interactive charts and AI-powered insights. Built with React, TypeScript, FastAPI, D3, and Three.js.
+### Option 2: Manual Setup
 
-## Highlights
-
-- React 18 + TypeScript frontend
-- Vite build system
-- D3 and Three.js visualizations
-- AI-powered explanations (Ollama/Mistral)
-- Zustand state management
-- Tailwind CSS styling
-- FastAPI backend
-- Vitest unit tests + Playwright E2E tests
-- SQLite storage
-- Dark/light theme
-
-## Requirements
-
-- Node.js 22.12+ (see .nvmrc)
-- Python 3.8+
-
-## Quick Start
-
-### 1) Backend
+#### Backend Setup
 
 ```bash
 cd backend
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python3 -m uvicorn main:app --reload
 ```
 
 Backend runs at http://localhost:8000
 
-### 2) Frontend
+#### Frontend Setup
 
 ```bash
 cd frontend
-cp .env.example .env.local
 npm install
 npm run dev
 ```
 
-Frontend runs at http://127.0.0.1:5173
+Frontend runs at http://localhost:5173
 
-## AI Explanations (Optional)
+## 🤖 AI Explanations (Optional)
 
-Install Ollama and the Mistral model:
+To enable AI-powered chart explanations, install and run Ollama with the Mistral model:
 
 ```bash
+# Install Ollama (macOS/Linux)
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Pull the Mistral model
 ollama pull mistral
+
+# Start Ollama server
 ollama serve
 ```
 
-The frontend will call:
-- POST /api/ai/explain-chart
-- GET /api/ai/status
+The application will automatically connect to Ollama and enable:
+- Natural language explanations for charts
+- Trend analysis and insights
+- Interactive data interpretation
 
-## Project Layout
+API endpoints:
+- `POST /api/ai/explain-chart` - Generate chart explanations
+- `GET /api/ai/status` - Check AI service availability
+
+## 📁 Project Structure
 
 ```
 arches-visitation/
-  backend/
-  frontend/
-  data/
-  .nvmrc
-```
+├── backend/               # FastAPI backend
+│   ├── main.py           # Application entry point
+│   ├── ai_service.py     # AI/LLM integration
+│   ├── data_loader.py    # CSV data processing
+│   ├── database.py       # SQLAlchemy models
+│   ├── requirements.txt  # Python dependencies
+│   └── data/             # Parsed data cache
+├── frontend/             # React frontend
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── store/        # Zustand stores
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── types/        # TypeScript definitions
+│   │   └── utils/        # Utility functions
+│   ├── e2e/              # Playwright tests
+│   ├── package.json      # Node dependencies
+│   └── vite.config.js    # Vite configuration
+├── data/                 # Source CSV files
+├── docker-compose.yml    # Docker orchestration
+└── .nvmrc                # Node version specification
 
-## Frontend Scripts
+## 📜 Available Scripts
+
+### Frontend
 
 ```bash
-npm run dev          # start dev server
-npm run build        # production build
-npm run preview      # preview build
-npm run test         # unit tests
-npm run test:e2e     # E2E tests
+npm run dev          # Start development server
+npm run build        # Create production build
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run test         # Run unit tests with Vitest
+npm run test:e2e     # Run end-to-end tests with Playwright
+npm run test:e2e:ui  # Run E2E tests in UI mode
 ```
 
-## Testing
+### Backend
 
-- Unit tests: Vitest
-- E2E tests: Playwright
+```bash
+# In virtual environment
+uvicorn main:app --reload              # Development server with hot reload
+uvicorn main:app --host 0.0.0.0        # Expose on all interfaces
+python3 -m pytest                       # Run backend tests (if available)
+```
 
+## 🧪 Testing
+
+The project includes comprehensive testing at multiple levels:
+
+### Unit Tests (Vitest)
 ```bash
 cd frontend
 npm run test
+
+# Run with coverage
+npm run test -- --coverage
+```
+
+Tests include:
+- Component rendering and behavior
+- State management (Zustand stores)
+- Utility functions
+- Data formatting
+
+### End-to-End Tests (Playwright)
+```bash
+cd frontend
 npm run test:e2e
+
+# Run in UI mode for debugging
+npm run test:e2e:ui
 ```
 
-## Environment Variables
+E2E tests cover:
+- Dashboard navigation
+- Data entry workflows
+- Chart interactions
+- Theme switching
 
-Frontend (.env.local):
+## ⚙️ Environment Variables
 
-```
+### Frontend (.env.local)
+
+```env
 VITE_API_URL=http://localhost:8000
 VITE_API_CACHE_TTL_MS=30000
 ```
 
-## Notes
+### Backend
 
-- The frontend uses proxying for /api requests in dev.
-- Production builds are minified and chunked for faster loading.
+No environment variables required for basic operation. Optional configuration:
+- Database path (defaults to SQLite in project directory)
+- Ollama service URL (defaults to `http://localhost:11434`)
 
-## License
+## 🎯 Key Features Explained
 
-MIT
-- **Python 3.8+** (ver- *um- * }A modeex-ve
+### Data Visualizations
+- **Time Series Chart**: Interactive line charts showing visitation trends over time
+- **Monthly Heatmap**: Calendar heatmap displaying monthly patterns
+- **3D Rankings**: Three.js-powered 3D visualization of monthly park rankings
+
+### Data Management
+- Automatic CSV data import and processing
+- SQLite database with efficient querying
+- Pandas-based data transformation and aggregation
+
+### State Management
+- Zustand stores for theme and data state
+- Persistent theme preference (localStorage)
+- Optimized re-rendering with selectors
+
+### Performance Optimizations
+- Code splitting with dynamic imports
+- Lazy loading of visualizations
+- API response caching
+- Debounced user inputs
+- Minified production builds
+
+## 🐳 Docker Deployment
+
+The application is fully containerized for easy deployment:
+
+```bash
+# Build and start containers
+docker-compose up --build
+
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild specific service
+docker-compose up --build frontend
+```
+
+Services configured:
+- **frontend**: Vite dev server on port 5173
+- **backend**: Uvicorn on port 8000
+- **network**: Bridge network for inter-container communication
+
+## 📊 Data Sources
+
+The dashboard processes National Park Service visitation data from CSV files:
+- Annual recreation visitation (1904-present)
+- Monthly public use statistics
+- Overnight stays data
+- Recreation visitors by month
+
+Data files are located in the `/data` directory and automatically loaded on backend startup.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🔗 Additional Resources
+
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [React Documentation](https://react.dev/)
+- [Vite Guide](https://vitejs.dev/guide/)
+- [D3.js Examples](https://observablehq.com/@d3/gallery)
+- [Three.js Documentation](https://threejs.org/docs/)
+- [Ollama Documentation](https://ollama.ai/)
