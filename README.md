@@ -114,6 +114,28 @@ The application will automatically connect to Ollama and enable:
 - Trend analysis and insights
 - Interactive data interpretation
 
+### How explanations are checked
+
+The model isn't trusted to get numbers right. Each explanation goes through these steps (see `backend/ai_service.py`):
+
+1. **Structured output.** Ollama is given a JSON schema, so the model must return a `summary` plus a list of `claims`. Each claim names a number and the data field it came from (for example `stats.visitors`). Temperature is 0 so results are consistent.
+2. **Number checking.** Every claim is compared with the actual value in the chart data. Numbers written in the summary are checked too, allowing for rounding (so "1.2 million" matches 1,234,567).
+3. **One retry with feedback.** If a claim is wrong or points to a field that doesn't exist, the model is told exactly what was wrong and tries once more.
+4. **Shown in the UI.** Each explanation shows whether every number matched, some couldn't be checked, or some didn't match. Click it to see each claim.
+
+The prompts also tell the model to present causes (weather, holidays) as likely factors rather than facts.
+
+Expect 1-2 minutes per explanation on a laptop CPU with Mistral, and twice that when a retry happens.
+
+### Caching
+
+Each explanation is saved in the `explanation_cache` table in `backend/arches.db` (see `backend/explanation_cache.py`), so a chart is only sent to the model once. After that it loads instantly, survives backend restarts, and is still shown if Ollama is stopped.
+
+- The cache key covers the model name and the full prompt, which includes the chart data. New data, a different `OLLAMA_MODEL`, or an edited prompt get a fresh explanation automatically. If you change how results are processed after the model answers, bump `CACHE_VERSION` in `explanation_cache.py`.
+- If two requests for the same chart arrive together, they share one model run. If the browser leaves mid-request, the run still finishes and is saved.
+- Errors and timeouts are not cached.
+- To clear the cache: `sqlite3 backend/arches.db "DELETE FROM explanation_cache"`.
+
 API endpoints:
 - `POST /api/ai/explain-chart` - Generate chart explanations
 - `GET /api/ai/status` - Check AI service availability
@@ -194,6 +216,15 @@ npm run test:e2e
 npm run test:e2e:ui
 ```
 
+### Backend Tests (pytest)
+```bash
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+Backend tests cover the number checker and the explanation service, using a fake Ollama server, so no model is needed.
+
 E2E tests cover:
 - Dashboard navigation
 - Data entry workflows
@@ -213,7 +244,9 @@ VITE_API_CACHE_TTL_MS=30000
 
 No environment variables required for basic operation. Optional configuration:
 - Database path (defaults to SQLite in project directory)
-- Ollama service URL (defaults to `http://localhost:11434`)
+- `OLLAMA_BASE_URL`: Ollama service URL (defaults to `http://localhost:11434`). In Docker, use `http://host.docker.internal:11434` to reach Ollama on your machine.
+- `OLLAMA_MODEL`: model name (defaults to `mistral`)
+- `OLLAMA_TIMEOUT_SECONDS`: per-request timeout (defaults to `240`; Ollama handles one request at a time, so a request can wait behind another)
 
 ## 🎯 Key Features Explained
 

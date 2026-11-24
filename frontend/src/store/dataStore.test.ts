@@ -17,9 +17,9 @@ describe('useExplanationStore', () => {
 
     expect(store.getExplanation('monthly_breakdown', sampleData)).toBeNull();
 
-    store.setExplanation('monthly_breakdown', sampleData, 'Cached explanation');
+    store.setExplanation('monthly_breakdown', sampleData, { explanation: 'Cached explanation' });
 
-    expect(store.getExplanation('monthly_breakdown', sampleData)).toBe(
+    expect(store.getExplanation('monthly_breakdown', sampleData)?.explanation).toBe(
       'Cached explanation',
     );
   });
@@ -27,7 +27,7 @@ describe('useExplanationStore', () => {
   it('clears cached explanations', () => {
     const store = useExplanationStore.getState();
 
-    store.setExplanation('monthly_breakdown', sampleData, 'Cached explanation');
+    store.setExplanation('monthly_breakdown', sampleData, { explanation: 'Cached explanation' });
     store.clearExplanations();
 
     expect(store.getExplanation('monthly_breakdown', sampleData)).toBeNull();

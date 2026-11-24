@@ -25,12 +25,6 @@ const filterByYear = (records: VisitationRecord[], year: number): VisitationReco
   return records.filter(d => new Date(d.date).getFullYear() === year)
 }
 
-// Helper function to get month data statistics
-const getMonthData = (records: VisitationRecord[], year: number, month: number): { data: VisitationRecord[]; count: number } => {
-  const data = filterByYearAndMonth(records, year, month)
-  return { data, count: data.length }
-}
-
 export default function DataEntry(): JSX.Element {
   const visitation = useDataStore((state) => state.visitation)
   const fetchData = useDataStore((state) => state.fetchData)
@@ -44,7 +38,6 @@ export default function DataEntry(): JSX.Element {
   const [selectedMonthTab, setSelectedMonthTab] = useState<number>(new Date().getMonth() + 1)
 
   const currentYear = new Date().getFullYear()
-  const today = new Date()
   const selectedMonth = new Date(selectedDate).getMonth() + 1
 
   const monthShortFormatter = useMemo(
@@ -72,9 +65,10 @@ export default function DataEntry(): JSX.Element {
   
   // Grace period: Allow adding previous year data during first week of new year
   const isWithinGracePeriod = useMemo(() => {
+    const today = new Date()
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000)
     return dayOfYear <= 7
-  }, [today])
+  }, [])
   
   const allowedYears = useMemo(() => {
     return isWithinGracePeriod ? [currentYear - 1, currentYear] : [currentYear]
@@ -91,7 +85,16 @@ export default function DataEntry(): JSX.Element {
   }
 
   useEffect(() => {
-    fetchDailyRecords(currentYear)
+    // Ignore a response that arrives after the year changed or we unmounted
+    let ignore = false
+    apiCall<VisitationRecord[]>(API_ENDPOINTS.daily(currentYear))
+      .then(data => {
+        if (!ignore) setDailyRecords(data)
+      })
+      .catch(error => console.error('Error fetching daily records:', error))
+    return () => {
+      ignore = true
+    }
   }, [currentYear])
 
   const statistics = useMemo<Statistics>(() => {
@@ -361,6 +364,7 @@ export default function DataEntry(): JSX.Element {
                     : 'text-muted-foreground/50 cursor-default'
                 }`}
                 disabled={!hasEntries}
+                aria-pressed={selectedMonthTab === month}
                 aria-label={`View entries for ${monthName}`}
               >
                 {monthName}

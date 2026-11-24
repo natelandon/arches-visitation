@@ -7,6 +7,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
     globals: true,
+    // Playwright specs run under `npm run test:e2e`, not Vitest
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'tests/e2e/**'],
   },
   build: {
     target: 'esnext',
@@ -23,7 +25,6 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'zustand'],
           charts: ['d3'],
-          three: ['three'],
           ui: [
             'lucide-react',
             '@radix-ui/react-tabs',

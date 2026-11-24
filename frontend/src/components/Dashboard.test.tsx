@@ -1,3 +1,4 @@
+import { mockStore } from '../test/mockStore'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import Dashboard from './Dashboard'
@@ -16,25 +17,15 @@ vi.mock('./ChartExplanation', () => ({
 vi.mock('./DataEntry', () => ({
   default: () => <div data-testid="data-entry">DataEntry</div>,
 }))
-vi.mock('./MonthlyRank3D', () => ({
-  default: () => <div data-testid="monthly-rank-3d">MonthlyRank3D</div>,
-}))
 
 describe('Dashboard Component', () => {
-  const mockVisitation = [
-    { date: '2024-01-15', visitors: 1000 },
-    { date: '2024-02-15', visitors: 1200 },
-    { date: '2024-03-15', visitors: 900 },
-    { date: '2024-04-15', visitors: 1100 },
-    { date: '2024-05-15', visitors: 1300 },
-    { date: '2024-06-15', visitors: 1400 },
-    { date: '2024-07-15', visitors: 1500 },
-    { date: '2024-08-15', visitors: 1600 },
-    { date: '2024-09-15', visitors: 1400 },
-    { date: '2024-10-15', visitors: 1200 },
-    { date: '2024-11-15', visitors: 1100 },
-    { date: '2024-12-15', visitors: 1250 },
-  ]
+  // The Stats tab shows the previous calendar year, so build data for it.
+  const statsYear = new Date().getFullYear() - 1
+  const monthlyVisitors = [1000, 1200, 900, 1100, 1300, 1400, 1500, 1600, 1400, 1200, 1100, 1250]
+  const mockVisitation = monthlyVisitors.map((visitors, i) => ({
+    date: `${statsYear}-${String(i + 1).padStart(2, '0')}-15T00:00:00`,
+    visitors,
+  }))
 
   const mockAnnual = [
     { year: 2022, visitors: 10000 },
@@ -44,9 +35,10 @@ describe('Dashboard Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: mockVisitation,
       annual: mockAnnual,
+      stats: {},
       hoveredDate: null,
       setHoveredDate: vi.fn(),
       fetchData: vi.fn(),
@@ -67,14 +59,14 @@ describe('Dashboard Component', () => {
     expect(screen.getByText('Add Data')).toBeInTheDocument()
   })
 
-  it('renders overview tab content by default', () => {
+  it('renders overview tab content by default', async () => {
     render(<Dashboard />)
-    expect(screen.getByTestId('time-series')).toBeInTheDocument()
+    expect(await screen.findByTestId('time-series')).toBeInTheDocument()
   })
 
   it('switches to heatmap tab when clicked', async () => {
     render(<Dashboard />)
-    const heatmapTab = screen.getByRole('button', { name: 'Monthly Heatmap' })
+    const heatmapTab = screen.getByRole('tab', { name: 'Monthly Heatmap' })
     fireEvent.click(heatmapTab)
     
     await waitFor(() => {
@@ -84,7 +76,7 @@ describe('Dashboard Component', () => {
 
   it('switches to stats tab when clicked', async () => {
     render(<Dashboard />)
-    const statsTab = screen.getByRole('button', { name: '2025 Stats' })
+    const statsTab = screen.getByRole('tab', { name: /Stats$/ })
     fireEvent.click(statsTab)
     
     // Stats tab shows 3D chart and chart explanation
@@ -93,7 +85,7 @@ describe('Dashboard Component', () => {
 
   it('switches to data entry tab when clicked', async () => {
     render(<Dashboard />)
-    const dataEntryTab = screen.getByRole('button', { name: 'Add Data' })
+    const dataEntryTab = screen.getByRole('tab', { name: 'Add Data' })
     fireEvent.click(dataEntryTab)
     
     await waitFor(() => {
@@ -103,19 +95,23 @@ describe('Dashboard Component', () => {
 
   it('displays annual summary statistics', () => {
     render(<Dashboard />)
-    // Overview tab shows annual stats
-    expect(screen.getByTestId('time-series')).toBeInTheDocument()
+    expect(screen.getByText('Total Visitors')).toBeInTheDocument()
+    expect(screen.getByText('10-Year Avg Annual')).toBeInTheDocument()
   })
 
   it('formats large numbers with K/M notation in summary', () => {
+    mockStore(useDataStore, {
+      visitation: mockVisitation,
+      stats: { total_visitors: 2_500_000, years_covered: [1929, 2025] },
+    })
     render(<Dashboard />)
-    const container = document.querySelector('main')
-    expect(container?.textContent).toBeDefined()
+    expect(screen.getByText('2.5M')).toBeInTheDocument()
+    expect(screen.getByText('1929–2025')).toBeInTheDocument()
   })
 
   it('shows current year stats in 2025 tab', async () => {
     render(<Dashboard />)
-    const currentYearTab = screen.getByRole('button', { name: '2025 Stats' })
+    const currentYearTab = screen.getByRole('tab', { name: /Stats$/ })
     fireEvent.click(currentYearTab)
     
     expect(currentYearTab).toHaveAttribute('aria-selected', 'true')
@@ -123,15 +119,16 @@ describe('Dashboard Component', () => {
 
   it('displays peak and lowest month information', () => {
     render(<Dashboard />)
-    const container = document.querySelector('main')
-    // Dashboard should display peak month data
-    expect(container?.textContent).toContain('2024')
+    fireEvent.click(screen.getByRole('tab', { name: /Stats$/ }))
+    expect(screen.getByText('Peak Month').parentElement).toHaveTextContent('August')
+    expect(screen.getByText('Lowest Month').parentElement).toHaveTextContent('March')
   })
 
   it('handles no data gracefully', () => {
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: [],
       annual: [],
+      stats: {},
       hoveredDate: null,
       setHoveredDate: vi.fn(),
       fetchData: vi.fn(),
@@ -143,7 +140,7 @@ describe('Dashboard Component', () => {
 
   it('renders tab navigation with proper ARIA attributes', () => {
     render(<Dashboard />)
-    const overviewTab = screen.getByRole('button', { name: 'Overview' })
+    const overviewTab = screen.getByRole('tab', { name: 'Overview' })
     expect(overviewTab).toHaveAttribute('role', 'tab')
   })
 
@@ -156,13 +153,14 @@ describe('Dashboard Component', () => {
 
   it('maintains tab state on re-render', () => {
     const { rerender } = render(<Dashboard />)
-    const heatmapTab = screen.getByRole('button', { name: 'Monthly Heatmap' })
+    const heatmapTab = screen.getByRole('tab', { name: 'Monthly Heatmap' })
     fireEvent.click(heatmapTab)
     
     // Re-render with same props
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: mockVisitation,
       annual: mockAnnual,
+      stats: {},
       hoveredDate: null,
       setHoveredDate: vi.fn(),
       fetchData: vi.fn(),
@@ -174,16 +172,67 @@ describe('Dashboard Component', () => {
 
   it('displays responsive layout', () => {
     const { container } = render(<Dashboard />)
-    const main = container.querySelector('main')
-    expect(main).toBeInTheDocument()
+    expect(container.querySelector('.grid.sm\\:grid-cols-2')).toBeInTheDocument()
   })
 
   it('shows explanation component with data', () => {
     render(<Dashboard />)
-    const statsTab = screen.getByRole('button', { name: '2025 Stats' })
+    const statsTab = screen.getByRole('tab', { name: /Stats$/ })
     fireEvent.click(statsTab)
     
-    // Stats tab should have chart explanation
     expect(statsTab).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getAllByTestId('chart-explanation').length).toBeGreaterThan(0)
+  })
+
+  describe('tab keyboard access', () => {
+    const tab = (name: string | RegExp) => screen.getByRole('tab', { name })
+
+    it('names the tab list and labels each panel by its tab', () => {
+      render(<Dashboard />)
+      expect(screen.getByRole('tablist', { name: 'Dashboard sections' })).toBeInTheDocument()
+      expect(screen.getByRole('tabpanel', { name: 'Overview' })).toBeInTheDocument()
+
+      fireEvent.click(tab('Monthly Heatmap'))
+      expect(screen.getByRole('tabpanel', { name: 'Monthly Heatmap' })).toBeInTheDocument()
+    })
+
+    it('arrow keys move focus between tabs without selecting them', () => {
+      render(<Dashboard />)
+      tab('Overview').focus()
+
+      fireEvent.keyDown(tab('Overview'), { key: 'ArrowRight' })
+      expect(tab('Monthly Heatmap')).toHaveFocus()
+      expect(tab('Overview')).toHaveAttribute('aria-selected', 'true')
+      expect(tab('Monthly Heatmap')).toHaveAttribute('aria-selected', 'false')
+
+      fireEvent.keyDown(tab('Monthly Heatmap'), { key: 'ArrowLeft' })
+      expect(tab('Overview')).toHaveFocus()
+    })
+
+    it('arrow keys wrap around, and Home/End jump to the ends', () => {
+      render(<Dashboard />)
+      tab('Overview').focus()
+
+      fireEvent.keyDown(tab('Overview'), { key: 'ArrowLeft' })
+      expect(tab('Add Data')).toHaveFocus()
+      fireEvent.keyDown(tab('Add Data'), { key: 'ArrowRight' })
+      expect(tab('Overview')).toHaveFocus()
+
+      fireEvent.keyDown(tab('Overview'), { key: 'End' })
+      expect(tab('Add Data')).toHaveFocus()
+      fireEvent.keyDown(tab('Add Data'), { key: 'Home' })
+      expect(tab('Overview')).toHaveFocus()
+    })
+
+    it('only the selected tab is in the Tab order, so focus re-enters on it', () => {
+      render(<Dashboard />)
+      fireEvent.click(tab(/Stats$/))
+
+      for (const t of screen.getAllByRole('tab')) {
+        const selected = t.getAttribute('aria-selected') === 'true'
+        expect(t).toHaveAttribute('tabindex', selected ? '0' : '-1')
+      }
+      expect(tab(/Stats$/)).toHaveAttribute('tabindex', '0')
+    })
   })
 })

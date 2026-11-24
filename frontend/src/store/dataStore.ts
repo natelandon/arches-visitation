@@ -6,6 +6,7 @@ import type {
   Stats,
   ExplanationStore,
   ExplanationCache,
+  ExplanationResult,
 } from '../types';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 
@@ -14,7 +15,7 @@ export const useDataStore = create<DataStore>((set) => ({
   annualData: [],
   stats: {
     total_visitors: 0,
-    years_covered: 0,
+    years_covered: [0, 0],
     ten_year_average: 0,
     highest_growth_year: 0,
     highest_growth_value: 0,
@@ -69,22 +70,23 @@ export const useExplanationStore = create<ExplanationStore>((set, get) => ({
   getExplanation: (
     chartType: ExplanationCache['chartType'],
     data: Record<string, unknown>,
-  ): string | null => {
+  ): ExplanationResult | null => {
     const key = createExplanationKey(chartType, data);
     const cached = get().explanations.get(key);
-    return cached?.explanation ?? null;
+    if (!cached) return null;
+    return { explanation: cached.explanation, verification: cached.verification };
   },
 
   setExplanation: (
     chartType: ExplanationCache['chartType'],
     data: Record<string, unknown>,
-    explanation: string,
+    result: ExplanationResult,
   ) => {
     const key = createExplanationKey(chartType, data);
     const newCache: ExplanationCache = {
+      ...result,
       key,
       chartType,
-      explanation,
       timestamp: Date.now(),
     };
     set((state) => {

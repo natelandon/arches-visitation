@@ -11,7 +11,7 @@ export interface AnnualData {
 
 export interface Stats {
   total_visitors: number;
-  years_covered: number;
+  years_covered: [number, number]; // [first year, last year]
   ten_year_average: number;
   highest_growth_year: number;
   highest_growth_value: number;
@@ -44,10 +44,32 @@ export interface VisitationEntry {
   visitors: number;
 }
 
-export interface ExplanationCache {
+export type ClaimStatus = 'verified' | 'mismatch' | 'unknown_field';
+
+export interface CheckedClaim {
+  text: string;
+  value: number;
+  source_field: string;
+  status: ClaimStatus;
+  actual: number | null;
+}
+
+export interface ExplanationVerification {
+  status: 'verified' | 'partially_verified' | 'failed';
+  claims: CheckedClaim[];
+  unchecked_numbers: string[];
+  attempts: number;
+  model: string;
+}
+
+export interface ExplanationResult {
+  explanation: string;
+  verification?: ExplanationVerification;
+}
+
+export interface ExplanationCache extends ExplanationResult {
   key: string;
   chartType: 'annual_trends' | 'monthly_breakdown' | 'heatmap' | 'monthly_rank';
-  explanation: string;
   timestamp: number;
 }
 
@@ -56,11 +78,11 @@ export interface ExplanationStore {
   getExplanation: (
     chartType: ExplanationCache['chartType'],
     data: Record<string, unknown>,
-  ) => string | null;
+  ) => ExplanationResult | null;
   setExplanation: (
     chartType: ExplanationCache['chartType'],
     data: Record<string, unknown>,
-    explanation: string,
+    result: ExplanationResult,
   ) => void;
   clearExplanations: () => void;
 }

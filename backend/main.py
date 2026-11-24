@@ -11,7 +11,8 @@ import logging
 
 from database import init_db, get_db, VisitationRecord
 from data_loader import load_all_csv_data
-from ai_service import OllamaService
+from ai_service import AIServiceError, ChartType, explanation_service
+from explanation_cache import ExplanationCache
 
 # Pydantic models
 class VisitationEntry(BaseModel):
@@ -20,7 +21,7 @@ class VisitationEntry(BaseModel):
     visitors: int
 
 class AIExplanationRequest(BaseModel):
-    chart_type: str  # 'annual_trends', 'monthly_breakdown', 'heatmap', 'monthly_rank'
+    chart_type: ChartType
     data: dict
 
 # Setup logging
@@ -376,62 +377,55 @@ async def delete_visitation_entry(entry_id: int, db: Session = Depends(get_db)):
         logger.error(f"Error deleting visitation entry: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+explanation_cache = ExplanationCache(explanation_service)
+
+
 @app.post("/api/ai/explain-chart")
 async def explain_chart(request: AIExplanationRequest):
-    """Generate AI explanation for chart data using Ollama"""
-    try:
-        # Check if Ollama is available
-        if not OllamaService.is_available():
-            return {
-                "explanation": "AI explanation service is not available. Please ensure Ollama is installed and running on localhost:11434",
-                "available": False
-            }
-        
-        chart_type = request.chart_type
-        data = request.data
-        
-        # Route to appropriate explanation method
-        if chart_type == "annual_trends":
-            explanation = OllamaService.explain_annual_trends(data)
-        elif chart_type == "monthly_breakdown":
-            explanation = OllamaService.explain_monthly_breakdown(
-                data.get("stats", data),
-                data.get("month", ""),
-                data.get("year", 2025)
-            )
-        elif chart_type == "heatmap":
-            explanation = OllamaService.explain_heatmap_patterns(data)
-        elif chart_type == "monthly_rank":
-            explanation = OllamaService.explain_monthly_rank(
-                data,
-                data.get("month", ""),
-                data.get("rank", 0)
-            )
-        else:
-            explanation = "Unknown chart type"
-        
+    """Generate an AI explanation for chart data, with every number checked against the data.
+
+    On failure, `reason` tells the UI what to show: "unavailable" means Ollama
+    can't be reached (show setup steps); "error" means it is running but this
+    request failed, e.g. timed out (show the message and let the user retry).
+
+    Explanations are cached in SQLite (see explanation_cache.py), so a chart's
+    explanation is served instantly after the first time, even if Ollama is down.
+    """
+    cached = explanation_cache.get(request.chart_type, request.data)
+    if cached is not None:
+        return {"available": True, "cached": True, **cached.model_dump()}
+
+    service = explanation_cache.service
+    if not await service.is_available():
         return {
-            "explanation": explanation,
-            "available": True
+            "explanation": f"AI explanation service is not available. Please ensure Ollama is installed and running at {service.base_url}",
+            "available": False,
+            "reason": "unavailable",
         }
-        
+
+    try:
+        result = await explanation_cache.explain(request.chart_type, request.data)
+    except AIServiceError as e:
+        return {"explanation": str(e), "available": False, "reason": "error"}
     except Exception as e:
         logger.error(f"Error generating AI explanation: {e}")
         return {
             "explanation": "Error generating explanation. Please try again.",
             "available": False,
-            "error": str(e)
+            "reason": "error",
         }
+
+    return {"available": True, "cached": False, **result.model_dump()}
 
 @app.get("/api/ai/status")
 async def ai_status():
     """Check if AI explanation service is available"""
-    available = OllamaService.is_available()
+    available = await explanation_service.is_available()
     return {
         "available": available,
         "service": "Ollama",
-        "endpoint": "http://localhost:11434",
-        "default_model": "mistral"
+        "endpoint": explanation_service.base_url,
+        "default_model": explanation_service.model,
     }
 
 @app.get("/health")

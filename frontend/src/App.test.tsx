@@ -1,8 +1,8 @@
+import { mockStore } from './test/mockStore'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import App from './App'
 import { useThemeStore } from './store/themeStore'
-import { useDataStore } from './store/dataStore'
 
 // Mock child components to avoid complex dependencies
 vi.mock('./components/Header', () => ({
@@ -19,12 +19,21 @@ vi.mock('./store/themeStore', () => ({
   })),
 }))
 
+// One stable state object, so fetchData keeps the same identity across
+// renders (App's effect depends on it) and getState() matches the hook.
+const dataState = vi.hoisted(() => ({
+  fetchData: () => Promise.resolve(),
+  visitation: [{ date: '2025-01-15', visitors: 100 }],
+  setHoveredDate: () => {},
+}))
+
 vi.mock('./store/dataStore', () => ({
-  useDataStore: vi.fn((selector: any) => ({
-    fetchData: vi.fn().mockResolvedValue(undefined),
-    visitation: [{ date: '2025-01-15', visitors: 100 }],
-    setHoveredDate: vi.fn(),
-  })),
+  useDataStore: Object.assign(
+    vi.fn((selector?: (s: typeof dataState) => unknown) =>
+      selector ? selector(dataState) : dataState
+    ),
+    { getState: () => dataState }
+  ),
 }))
 
 describe('App Component', () => {
@@ -51,15 +60,15 @@ describe('App Component', () => {
   })
 
   it('applies dark class to root element when darkMode is true', () => {
-    ;(useThemeStore as any).mockReturnValue({
+    mockStore(useThemeStore, {
       darkMode: true,
     })
-    const { rerender } = render(<App />)
+    render(<App />)
     expect(document.documentElement).toBeDefined()
   })
 
   it('removes dark class from root element when darkMode is false', () => {
-    ;(useThemeStore as any).mockReturnValue({
+    mockStore(useThemeStore, {
       darkMode: false,
     })
     render(<App />)

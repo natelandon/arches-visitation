@@ -39,8 +39,8 @@ const filterByCurrentYear = (data: (AnnualData | VisitationRecord)[], useAnnual:
 // Helper: Sort data appropriately
 const sortChartData = (data: (AnnualData | VisitationRecord)[], useAnnual: boolean): (AnnualData | VisitationRecord)[] => {
   return useAnnual
-    ? [...(data as AnnualData[])].sort((a, b) => a.year - b.year)
-    : [...(data as VisitationRecord[])].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    ? (data as AnnualData[]).toSorted((a, b) => a.year - b.year)
+    : (data as VisitationRecord[]).toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 }
 
 // Helper: Create scales based on data type (eliminates repeated scale logic)
@@ -73,7 +73,7 @@ const createScales = (data: (AnnualData | VisitationRecord)[], width: number, he
 const findClosestPoint = (
   mouseX: number,
   data: (AnnualData | VisitationRecord)[],
-  xScale: any,
+  xScale: d3.ScaleLinear<number, number> | d3.ScaleTime<number, number>,
   useAnnual: boolean
 ): AnnualData | VisitationRecord => {
   let closest = data[0]
@@ -144,7 +144,7 @@ export default function TimeSeriesChart({ useAnnualData = false, excludeCurrentY
   )
 
   useEffect(() => {
-    if (!containerRef.current || data.length === 0) return
+    if (!containerRef.current || sortedData.length === 0) return
 
     const margin = CHART_CONFIG.margin
     const containerWidth = containerRef.current.clientWidth
