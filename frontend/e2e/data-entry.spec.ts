@@ -46,7 +46,6 @@ test.describe('Data Entry E2E Tests', () => {
       .filter({ hasText: /Jan|Feb|Mar|Apr|May|Jun/ });
 
     if ((await monthButtons.count()) > 1) {
-      const firstMonth = monthButtons.first();
       const secondMonth = monthButtons.nth(1);
 
       await secondMonth.click();
@@ -92,7 +91,6 @@ test.describe('Data Entry E2E Tests', () => {
   });
 
   test('should show year selector', async () => {
-    const container = page.locator('main');
     const currentYear = new Date().getFullYear();
 
     // Check for year buttons
@@ -151,9 +149,6 @@ test.describe('Data Entry E2E Tests', () => {
       .filter({ hasText: /Jan|Feb|Mar|Apr|May|Jun/ });
 
     if ((await monthButtons.count()) > 1) {
-      const firstMonth = monthButtons.first();
-      const statsBeforeClick = await page.locator('main').textContent();
-
       await monthButtons.nth(1).click();
       await page.waitForTimeout(200);
 

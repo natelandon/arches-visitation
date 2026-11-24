@@ -1,5 +1,6 @@
+import { mockStore } from '../test/mockStore'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import TimeSeriesChart from './TimeSeriesChart'
 import { useDataStore } from '../store/dataStore'
 
@@ -20,9 +21,9 @@ describe('TimeSeriesChart Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: mockVisitationData,
-      annual: mockAnnualData,
+      annualData: mockAnnualData,
       setHoveredDate: vi.fn(),
     })
   })
@@ -46,7 +47,7 @@ describe('TimeSeriesChart Component', () => {
   })
 
   it('handles empty data gracefully', () => {
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: [],
       annual: [],
       setHoveredDate: vi.fn(),
@@ -68,12 +69,12 @@ describe('TimeSeriesChart Component', () => {
     const svgBefore = container1.querySelector('svg')
     expect(svgBefore).toBeInTheDocument()
 
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: [
         { date: '2024-02-01', visitors: 200 },
         { date: '2024-02-02', visitors: 220 },
       ],
-      annual: mockAnnualData,
+      annualData: mockAnnualData,
       setHoveredDate: vi.fn(),
     })
 

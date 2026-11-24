@@ -1,17 +1,18 @@
-import { memo, useState, useMemo, useCallback, lazy, Suspense } from 'react'
+import { memo, useState, useMemo, useCallback, useId, lazy, Suspense, type KeyboardEvent } from 'react'
 import { useDataStore } from '../store/dataStore'
 import { ChartExplanation } from './ChartExplanation'
 import LoadingFallback from './LoadingFallback'
 import { formatNumber } from '../utils/formatting'
+import { buildHeatmapSummary } from '../utils/heatmapSummary'
+import { buildOverviewSummary } from '../utils/overviewSummary'
+import MonthlyVisitationChart from './MonthlyVisitationChart'
 
 const timeSeriesImport = () => import('./TimeSeriesChart')
 const monthlyHeatmapImport = () => import('./MonthlyHeatmap')
-const monthlyRank3dImport = () => import('./MonthlyRank3D')
 const dataEntryImport = () => import('./DataEntry')
 
 const TimeSeriesChart = lazy(() => timeSeriesImport())
 const MonthlyHeatmap = lazy(() => monthlyHeatmapImport())
-const MonthlyRank3D = lazy(() => monthlyRank3dImport())
 const DataEntry = lazy(() => dataEntryImport())
 
 type TabType = 'overview' | 'heatmap' | 'current-year' | 'data-entry'
@@ -75,7 +76,7 @@ const calculateMonthDetails = (visitation: Array<{ date: string; visitors: numbe
   
   const yearTotal = yearData.reduce((sum, d) => sum + d.visitors, 0)
   const percentage = ((monthData.visitors / yearTotal) * 100).toFixed(1)
-  const sorted = [...yearData].sort((a, b) => b.visitors - a.visitors)
+  const sorted = yearData.toSorted((a, b) => b.visitors - a.visitors)
   const rank = sorted.findIndex(d => new Date(d.date).getMonth() + 1 === month) + 1
   const daysInMonth = new Date(year, month, 0).getDate()
   const avgDaily = Math.round(monthData.visitors / daysInMonth)
@@ -86,21 +87,25 @@ const calculateMonthDetails = (visitation: Array<{ date: string; visitors: numbe
 // Tab Button Component (DRY)
 interface TabButtonProps {
   tab: Tab
+  id: string
   isActive: boolean
   onClick: () => void
   onPrefetch?: () => void
 }
 
-// eslint-disable-next-line jsx-a11y/anchor-is-valid
-const TabButton = memo(({ tab, isActive, onClick, onPrefetch }: TabButtonProps) => {
+const TabButton = memo(({ tab, id, isActive, onClick, onPrefetch }: TabButtonProps) => {
   const ariaSelected = isActive ? 'true' : 'false'
   return (
     <button
       type="button"
+      id={id}
       onClick={onClick}
       onMouseEnter={onPrefetch}
+      onFocus={onPrefetch}
       aria-selected={ariaSelected}
       role="tab"
+      // Only the selected tab is in the Tab order, so focus entering the
+      // tablist always lands on it; arrow keys reach the others.
       tabIndex={isActive ? 0 : -1}
     className={`px-4 py-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent ${
       isActive
@@ -118,6 +123,7 @@ export default function Dashboard(): JSX.Element {
   const [selectedMonth, setSelectedMonth] = useState<number>(12)
   const stats = useDataStore((state) => state.stats)
   const visitation = useDataStore((state) => state.visitation)
+  const annualData = useDataStore((state) => state.annualData)
 
   const prefetchers = useMemo<Record<TabType, () => void>>(
     () => ({
@@ -127,9 +133,7 @@ export default function Dashboard(): JSX.Element {
       heatmap: () => {
         monthlyHeatmapImport()
       },
-      'current-year': () => {
-        monthlyRank3dImport()
-      },
+      'current-year': () => {},
       'data-entry': () => {
         dataEntryImport()
       },
@@ -141,6 +145,30 @@ export default function Dashboard(): JSX.Element {
     setActiveTab(tabId)
   }, [])
 
+  // Arrow keys move focus only; Enter/Space (native button activation)
+  // selects. Panels lazy-load charts and start slow AI calls, so arrowing
+  // past a tab shouldn't open it.
+  const handleTabListKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
+    const current = tabs.indexOf(document.activeElement as HTMLButtonElement)
+    if (current === -1) return
+
+    const last = tabs.length - 1
+    const next = {
+      ArrowRight: current === last ? 0 : current + 1,
+      ArrowLeft: current === 0 ? last : current - 1,
+      Home: 0,
+      End: last,
+    }[event.key]
+    if (next === undefined) return
+
+    event.preventDefault()
+    tabs[next].focus()
+  }, [])
+
+  const idPrefix = useId()
+  const tabId = (id: TabType) => `${idPrefix}-tab-${id}`
+
   const currentYear = new Date().getFullYear()
   const previousYear = currentYear - 1
   const formatMonth = useCallback(
@@ -151,6 +179,18 @@ export default function Dashboard(): JSX.Element {
   // Memoized year-filtered data
   const yearData = useMemo(() =>
     visitation.filter(d => new Date(d.date).getFullYear() === previousYear),
+    [visitation, previousYear]
+  )
+
+  // Compact, plainly named data for the overview's AI explanation
+  const overviewSummary = useMemo(() =>
+    buildOverviewSummary(annualData ?? [], previousYear),
+    [annualData, previousYear]
+  )
+
+  // Compact real data for the heatmap's AI explanation
+  const heatmapSummary = useMemo(() =>
+    buildHeatmapSummary(visitation, previousYear),
     [visitation, previousYear]
   )
 
@@ -170,12 +210,20 @@ export default function Dashboard(): JSX.Element {
     <div className="container p-6 mx-auto max-w-screen-2xl">
       {/* Tab Navigation - DRY: Using map instead of repeated buttons */}
       <div className="mb-6">
-        {/* eslint-disable-next-line jsx-a11y/role-has-required-aria-props */}
-        <div className="flex border-b border-border" role="tablist">
+        {/* The tabs inside take focus, not the tablist itself (WAI-ARIA tabs
+            pattern), so this rule's suggestion would add a stray Tab stop. */}
+        {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+        <div
+          className="flex border-b border-border"
+          role="tablist"
+          aria-label="Dashboard sections"
+          onKeyDown={handleTabListKeyDown}
+        >
           {TABS.map(tab => (
             <TabButton
               key={tab.id}
               tab={tab}
+              id={tabId(tab.id)}
               isActive={activeTab === tab.id}
               onClick={() => handleTabClick(tab.id)}
               onPrefetch={prefetchers[tab.id]}
@@ -186,12 +234,14 @@ export default function Dashboard(): JSX.Element {
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
-        <div className="space-y-6" role="tabpanel" aria-labelledby="overview">
+        <div className="space-y-6" role="tabpanel" aria-labelledby={tabId('overview')}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="p-6 border rounded-lg shadow-md border-border bg-card">
               <h3 className="mb-2 text-sm font-medium text-muted-foreground">Total Visitors</h3>
               <p className="text-3xl font-bold">{formatNumber(stats.total_visitors || 0)}</p>
-              <p className="mt-2 text-xs text-muted-foreground">over {stats.years_covered || '—'} years</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {stats.years_covered?.[0] ? `${stats.years_covered[0]}–${stats.years_covered[1]}` : '—'}
+              </p>
             </div>
             <div className="p-6 border rounded-lg shadow-md border-border bg-card">
               <h3 className="mb-2 text-sm font-medium text-muted-foreground">10-Year Avg Annual</h3>
@@ -225,34 +275,33 @@ export default function Dashboard(): JSX.Element {
                 <span>Decline Year</span>
               </div>
             </div>
-            <ChartExplanation
+            {overviewSummary && <ChartExplanation
               chartType="annual_trends"
-              data={stats as unknown as Record<string, unknown>}
-            />
+              data={overviewSummary as unknown as Record<string, unknown>}
+            />}
           </div>
         </div>
       )}
 
       {/* Heatmap Tab */}
       {activeTab === 'heatmap' && (
-        <div className="space-y-6" role="tabpanel">
+        <div className="space-y-6" role="tabpanel" aria-labelledby={tabId('heatmap')}>
           <h2 className="text-lg font-semibold text-foreground">Monthly Visitation Heatmap</h2>
           <Suspense fallback={<LoadingFallback label="Loading heatmap…" />}>
             <MonthlyHeatmap visitation={visitation} />
           </Suspense>
-          <ChartExplanation
-            chartType="heatmap"
-            data={{
-              years: yearData.length ? [Math.min(...yearData.map(d => new Date(d.date).getFullYear())), Math.max(...yearData.map(d => new Date(d.date).getFullYear()))] : [],
-              months_coverage: 12
-            }}
-          />
+          {heatmapSummary && (
+            <ChartExplanation
+              chartType="heatmap"
+              data={heatmapSummary as unknown as Record<string, unknown>}
+            />
+          )}
         </div>
       )}
 
       {/* 2025 Stats Tab - CLEAN: Using extracted helper functions */}
       {activeTab === 'current-year' && (
-        <div className="space-y-6" role="tabpanel">
+        <div className="space-y-6" role="tabpanel" aria-labelledby={tabId('current-year')}>
           <h2 className="text-lg font-semibold text-foreground">{previousYear} Annual Summary</h2>
           
           {/* Annual Summary Stats */}
@@ -304,78 +353,40 @@ export default function Dashboard(): JSX.Element {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Selected Month Details */}
-              <div className="p-6 border rounded-lg shadow-md bg-card border-border">
-                <h4 className="mb-4 font-semibold">
-                  {formatMonth(previousYear, selectedMonth - 1)} {previousYear} Details
-                </h4>
-                {selectedMonthData ? (
-                  <div className="space-y-3">
-                    <div className="flex justify-between py-2 border-b border-border">
-                      <span className="text-muted-foreground">Total Visitors</span>
-                      <span className="text-lg font-bold">{formatNumber(selectedMonthData.visitors)}</span>
+            {/* Selected Month Details */}
+            <div className="p-6 border rounded-lg shadow-md bg-card border-border">
+              <h4 className="mb-4 font-semibold">
+                {formatMonth(previousYear, selectedMonth - 1)} {previousYear} Details
+              </h4>
+              {selectedMonthData ? (
+                <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                  {[
+                    { label: 'Total Visitors', value: formatNumber(selectedMonthData.visitors) },
+                    { label: '% of Annual Total', value: `${selectedMonthData.percentage}%` },
+                    { label: 'Rank (Busiest to Quietest)', value: `#${selectedMonthData.rank} of 12` },
+                    { label: 'Average Daily Visitors', value: formatNumber(selectedMonthData.avgDaily) },
+                  ].map(stat => (
+                    <div key={stat.label} className="p-4 text-center border rounded-md bg-accent/5 border-border/50">
+                      <div className="mb-1 text-sm text-muted-foreground">{stat.label}</div>
+                      <div className="text-2xl font-bold">{stat.value}</div>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-border">
-                      <span className="text-muted-foreground">% of Annual Total</span>
-                      <span className="font-medium">{selectedMonthData.percentage}%</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-border">
-                      <span className="text-muted-foreground">Rank (Busiest to Quietest)</span>
-                      <span className="font-medium">#{selectedMonthData.rank} of 12</span>
-                    </div>
-                    <div className="flex justify-between py-2">
-                      <span className="text-muted-foreground">Average Daily Visitors</span>
-                      <span className="font-medium">{formatNumber(selectedMonthData.avgDaily)}</span>
-                    </div>
-                    <div className="pt-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h5 className="font-semibold">Monthly Visitation Rank</h5>
-                      </div>
-                      <Suspense fallback={<LoadingFallback label="Loading 3D chart…" />}>
-                        <MonthlyRank3D data={yearData} year={previousYear} highlightMonth={selectedMonth} />
-                      </Suspense>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">No data available for this month</p>
-                )}
-              </div>
-              
-              {/* All Months Summary */}
-              <div className="p-6 border rounded-lg shadow-md bg-card border-border">
-                <h4 className="mb-4 font-semibold">All Months Overview</h4>
-                <div className="space-y-2 text-sm">
-                  {Array.from({ length: 12 }, (_, i) => {
-                    const month = i + 1
-                    const monthName = formatMonth(previousYear, i)
-                    const record = yearData.find(d => new Date(d.date).getMonth() + 1 === month)
-                    const visitors = record?.visitors ?? 0
-                    const isSelected = month === selectedMonth
-                    const ariaPressed = isSelected ? 'true' : 'false'
-                    
-                    // Only show months with data
-                    if (visitors === 0) return null
-                    
-                    return (
-                      <button
-                        key={month}
-                        type="button"
-                        className={`flex w-full items-center justify-between rounded-md border px-2 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                          isSelected
-                            ? 'bg-accent/10 border-accent/40 text-foreground'
-                            : 'border-transparent text-muted-foreground hover:border-accent/30 hover:bg-accent/5'
-                        }`}
-                        onClick={() => setSelectedMonth(month)}
-                        aria-pressed={ariaPressed}
-                      >
-                        <span className={isSelected ? 'font-semibold' : ''}>{monthName}</span>
-                        <span className={isSelected ? 'font-bold' : 'font-medium'}>{formatNumber(visitors)}</span>
-                      </button>
-                    )
-                  })}
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <p className="text-muted-foreground">No data available for this month</p>
+              )}
+            </div>
+
+            {/* Visitors by month - full width */}
+            <div className="p-6 mt-6 border rounded-lg shadow-md bg-card border-border">
+              <h4 className="font-semibold">Visitors by month, {previousYear}</h4>
+              <p className="mb-4 text-xs text-muted-foreground">Click a month to select it</p>
+              <MonthlyVisitationChart
+                data={yearData}
+                year={previousYear}
+                selectedMonth={selectedMonth}
+                onSelectMonth={setSelectedMonth}
+              />
             </div>
 
             {selectedMonthData && (
@@ -394,7 +405,7 @@ export default function Dashboard(): JSX.Element {
 
       {/* Data Entry Tab */}
       {activeTab === 'data-entry' && (
-        <div role="tabpanel">
+        <div role="tabpanel" aria-labelledby={tabId('data-entry')}>
           <Suspense fallback={<LoadingFallback label="Loading form…" />}>
             <DataEntry />
           </Suspense>

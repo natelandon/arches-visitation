@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -26,6 +26,16 @@ class VisitationRecord(Base):
     year = Column(Integer, index=True, nullable=True)
     day_of_week = Column(Integer, nullable=True)
     data_source = Column(String, nullable=True)  # Which CSV file it came from
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class ExplanationCacheEntry(Base):
+    """A checked AI explanation, stored so the same chart isn't sent to the model twice."""
+    __tablename__ = "explanation_cache"
+
+    key = Column(String, primary_key=True)  # sha256 of model + prompt; see explanation_cache.py
+    chart_type = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    result_json = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 def get_db():

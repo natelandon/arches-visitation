@@ -1,3 +1,4 @@
+import { mockStore } from '../test/mockStore'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import Header from './Header'
@@ -13,7 +14,7 @@ describe('Header Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(useThemeStore as any).mockReturnValue({
+    mockStore(useThemeStore, {
       darkMode: false,
       toggleDarkMode: mockToggleDarkMode,
     })
@@ -31,7 +32,7 @@ describe('Header Component', () => {
   })
 
   it('displays Light button when in dark mode', () => {
-    ;(useThemeStore as any).mockReturnValue({
+    mockStore(useThemeStore, {
       darkMode: true,
       toggleDarkMode: mockToggleDarkMode,
     })
@@ -62,7 +63,7 @@ describe('Header Component', () => {
     const { rerender } = render(<Header />)
     expect(screen.getByText('Dark')).toBeInTheDocument()
 
-    ;(useThemeStore as any).mockReturnValue({
+    mockStore(useThemeStore, {
       darkMode: true,
       toggleDarkMode: mockToggleDarkMode,
     })

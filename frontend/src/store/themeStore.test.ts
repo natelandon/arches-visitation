@@ -30,8 +30,8 @@ describe('Theme Store', () => {
     const store = useThemeStore.getState();
     const initialMode = store.darkMode;
 
-    // Call toggle
     store.toggleDarkMode();
+    expect(useThemeStore.getState().darkMode).toBe(!initialMode);
 
     // Verify localStorage was accessed (implementation dependent)
     const saved = localStorage.getItem('theme-mode');

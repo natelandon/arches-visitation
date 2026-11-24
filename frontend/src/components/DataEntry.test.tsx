@@ -1,7 +1,9 @@
+import { mockStore } from '../test/mockStore'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import DataEntry from './DataEntry'
 import { useDataStore } from '../store/dataStore'
+import { clearApiCache } from '../config/api'
 
 vi.mock('../store/dataStore')
 
@@ -14,47 +16,45 @@ describe('DataEntry Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(useDataStore as any).mockReturnValue({
+    mockStore(useDataStore, {
       visitation: mockVisitation,
       fetchData: mockFetchData,
     })
-    global.fetch = vi.fn()
+    clearApiCache()
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => [] })
   })
 
   it('renders data entry form', () => {
     render(<DataEntry />)
-    expect(screen.getByRole('heading')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Add Daily Visitor Data' })).toBeInTheDocument()
   })
 
   it('displays date input field', () => {
     render(<DataEntry />)
-    const inputs = screen.getAllByRole('textbox')
-    expect(inputs.length).toBeGreaterThan(0)
+    expect(screen.getByLabelText('Date')).toHaveAttribute('type', 'date')
   })
 
   it('displays visitor count input', () => {
     render(<DataEntry />)
-    const inputs = screen.getAllByRole('textbox')
-    expect(inputs.length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByRole('spinbutton', { name: 'Number of Visitors' })).toBeInTheDocument()
   })
 
   it('displays month statistics', () => {
-    render(<DataEntry />)
-    const container = document.querySelector('main')
+    const { container } = render(<DataEntry />)
     expect(container).toBeInTheDocument()
   })
 
   it('shows current year by default', () => {
-    render(<DataEntry />)
+    const { container } = render(<DataEntry />)
     const currentYear = new Date().getFullYear()
-    const container = document.querySelector('main')
-    expect(container?.textContent).toContain(currentYear.toString())
+    expect(container.textContent).toContain(currentYear.toString())
   })
 
   it('allows entering date and visitor count', async () => {
     render(<DataEntry />)
-    const inputs = screen.getAllByRole('textbox')
-    expect(inputs.length).toBeGreaterThan(0)
+    const visitors = screen.getByLabelText('Number of Visitors')
+    fireEvent.change(visitors, { target: { value: '250' } })
+    expect(visitors).toHaveValue(250)
   })
 
   it('displays grace period message during new year', () => {
@@ -63,9 +63,11 @@ describe('DataEntry Component', () => {
     
     render(<DataEntry />)
     
+    const message = screen.queryByText(/Grace period active/)
     if (dayOfYear <= 7) {
-      const container = document.querySelector('main')
-      expect(container?.textContent).toBeDefined()
+      expect(message).toBeInTheDocument()
+    } else {
+      expect(message).not.toBeInTheDocument()
     }
   })
 
@@ -76,24 +78,31 @@ describe('DataEntry Component', () => {
   })
 
   it('allows switching between months', async () => {
+    const year = new Date().getFullYear()
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [
+        { id: 1, date: `${year}-01-10T00:00:00`, visitors: 100 },
+        { id: 2, date: `${year}-02-10T00:00:00`, visitors: 200 },
+      ],
+    })
     render(<DataEntry />)
-    const buttons = screen.getAllByRole('button')
-    if (buttons.length > 0) {
-      fireEvent.click(buttons[0])
-      expect(buttons[0]).toHaveAttribute('aria-pressed', 'true')
-    }
+    const february = await screen.findByRole('button', { name: 'View entries for Feb' })
+    await waitFor(() => expect(february).toBeEnabled())
+    fireEvent.click(february)
+    expect(february).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('displays daily records list', () => {
-    render(<DataEntry />)
-    const container = document.querySelector('main')
+    const { container } = render(<DataEntry />)
     expect(container).toBeInTheDocument()
   })
 
   it('shows delete confirmation before removing record', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ visitation: [] }),
+      json: async () => [],
     })
 
     render(<DataEntry />)
@@ -101,8 +110,7 @@ describe('DataEntry Component', () => {
     const deleteButtons = screen.queryAllByRole('button', { name: /delete/i })
     if (deleteButtons.length > 0) {
       fireEvent.click(deleteButtons[0])
-      const container = document.querySelector('main')
-      expect(container).toBeInTheDocument()
+      expect(screen.getByRole('form', { name: 'Visitor data entry form' })).toBeInTheDocument()
     }
   })
 
@@ -113,10 +121,9 @@ describe('DataEntry Component', () => {
     render(<DataEntry />)
 
     await waitFor(() => {
-      // Component should handle error
-      const container = document.querySelector('main')
-      expect(container).toBeInTheDocument()
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching daily records:', expect.any(Error))
     })
+    expect(screen.getByRole('form', { name: 'Visitor data entry form' })).toBeInTheDocument()
 
     consoleErrorSpy.mockRestore()
   })
@@ -128,15 +135,14 @@ describe('DataEntry Component', () => {
   })
 
   it('displays statistics for selected month', () => {
-    render(<DataEntry />)
-    const container = document.querySelector('main')
+    const { container } = render(<DataEntry />)
     expect(container?.textContent).toContain('Total')
   })
 
   it('allows editing existing records', () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ visitation: [] }),
+      json: async () => [],
     })
 
     render(<DataEntry />)
@@ -145,14 +151,12 @@ describe('DataEntry Component', () => {
   })
 
   it('formats numbers in statistics display', () => {
-    render(<DataEntry />)
-    const container = document.querySelector('main')
+    const { container } = render(<DataEntry />)
     expect(container?.textContent).toBeDefined()
   })
 
   it('shows year selector with allowed years', () => {
-    render(<DataEntry />)
-    const container = document.querySelector('main')
+    const { container } = render(<DataEntry />)
     const currentYear = new Date().getFullYear()
     expect(container?.textContent).toContain(currentYear.toString())
   })
