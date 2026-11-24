@@ -324,3 +324,37 @@ def test_field_names_are_removed_from_the_summary():
     )
     # Ordinary parentheses stay
     assert strip_field_names("Spring (March to May) is busy.") == "Spring (March to May) is busy."
+
+
+# --- ranks and small numbers in claims ------------------------------------
+
+FEB = {"month": "February", "year": 2025, "stats": {"visitors": 51541, "percentage": "3.4", "rank": 10, "avgDaily": 1841}}
+
+
+def test_ordinal_rank_in_a_claim_is_checked():
+    # The real February failure: "10th" was ignored, so only "2025" was compared with rank 10
+    explanation = _explanation(
+        "February was the 10th busiest month.",
+        [{"text": "February 2025 ranked as the 10th busiest month.", "value": 10, "source_field": "stats.rank"}],
+    )
+    claims, unchecked = verify_explanation(explanation, FEB)
+    assert claims[0].status == "verified"
+    assert unchecked == []
+
+
+def test_wrong_ordinal_rank_is_still_a_mismatch():
+    explanation = _explanation(
+        "February was the 3rd busiest month.",
+        [{"text": "February 2025 was the 3rd busiest month.", "value": 10, "source_field": "stats.rank"}],
+    )
+    claims, _ = verify_explanation(explanation, FEB)
+    assert claims[0].status == "mismatch"
+
+
+def test_small_plain_number_in_a_claim_is_checked():
+    explanation = _explanation(
+        "It ranked 10 of 12.",
+        [{"text": "It ranked 10 out of 12 months.", "value": 10, "source_field": "stats.rank"}],
+    )
+    claims, _ = verify_explanation(explanation, FEB)
+    assert claims[0].status == "verified"

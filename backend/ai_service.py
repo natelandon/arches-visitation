@@ -145,16 +145,20 @@ _NUMBER_PATTERN = re.compile(
 )
 
 
-def extract_numbers(text: str) -> List[Tuple[str, float, float]]:
+def extract_numbers(text: str, include_counts: bool = False) -> List[Tuple[str, float, float]]:
     """Find numbers written in free text.
 
     Returns (original text, value, tolerance). The tolerance comes from how
     precisely the number was written, so "1.2 million" matches 1,234,567.
-    Small whole numbers (0-12) are skipped: they are usually counts or ranks
-    like "3 months" rather than data values.
+    By default, ordinals ("10th") and small whole numbers (0-12) are skipped:
+    in a summary they are usually counts like "3 months", not data values.
+    With include_counts=True they are kept, for checking a claim's sentence,
+    where a rank like "10th" is exactly the value being claimed.
     """
     # "COVID-19" is a name, not a data value.
     text = re.sub(r"COVID-19", "COVID", text, flags=re.IGNORECASE)
+    if include_counts:
+        text = re.sub(r"(\d)(?:st|nd|rd|th)\b", r"\1", text, flags=re.IGNORECASE)
     found = []
     for match in _NUMBER_PATTERN.finditer(text):
         raw, scale, _percent = match.groups()
@@ -166,7 +170,7 @@ def extract_numbers(text: str) -> List[Tuple[str, float, float]]:
         decimals = len(digits.split(".")[1]) if "." in digits else 0
         multiplier = _MULTIPLIERS.get((scale or "").lower(), 1)
 
-        if multiplier == 1 and decimals == 0 and abs(number) <= 12:
+        if not include_counts and multiplier == 1 and decimals == 0 and abs(number) <= 12:
             continue
 
         value = number * multiplier
@@ -183,7 +187,7 @@ def claim_matches(claim: Claim, actual: float) -> bool:
     gets checked. Comparing only `claim.value` let a sentence state one number
     while the claim cited (and copied) a different field.
     """
-    written = extract_numbers(claim.text)
+    written = extract_numbers(claim.text, include_counts=True)
     if not written:
         return values_match(claim.value, actual)
     return any(values_match(value, actual, tolerance) for _, value, tolerance in written)
