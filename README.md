@@ -1,90 +1,45 @@
-# Arches Visitation Analytics Dashboard
+# Arches Visitation Analytics
 
-A modern, full-stack analytics dashboard for visualizing park visitation data with interactive charts and AI-powered insights. Built with React, TypeScript, FastAPI, D3.js, and Three.js.
+A dashboard of visitor numbers for Arches National Park, from 1929 to the latest full year. It shows yearly trends, a month-by-month heatmap, and a breakdown of the most recent year, and it explains each chart in plain language using a local AI model (Mistral, via Ollama). Every number in an AI explanation is checked against the data before it is shown.
 
-## 🚀 Features
+- **Frontend:** React 18, TypeScript 5, Vite 6, D3 7, Zustand 4, Tailwind CSS 3
+- **Backend:** FastAPI, SQLAlchemy 2, pandas, SQLite
+- **AI (optional):** Ollama running Mistral locally
 
-- **Interactive Visualizations**: D3.js time-series charts, monthly heatmaps, and Three.js 3D rankings
-- **AI-Powered Insights**: Natural language explanations of chart data using Ollama/Mistral
-- **Modern Tech Stack**: React 18, TypeScript, Vite, FastAPI, and SQLite
-- **Comprehensive Testing**: Vitest unit tests + Playwright E2E tests
-- **Responsive Design**: Tailwind CSS with dark/light theme support
-- **Efficient State Management**: Zustand for lightweight, performant state handling
-- **Docker Support**: Full containerization with Docker Compose
-- **Auto-Initialized Database**: SQLite with automatic data loading
+## What's on the dashboard
 
-## 🛠️ Technologies Used
+| Tab | Shows |
+| --- | --- |
+| **Overview** | Total visitors, 10-year average, biggest growth and decline years, and a chart of yearly totals |
+| **Monthly Heatmap** | Every month of every year as a grid, colored by visitor count. It can switch to show each year's peak and low months |
+| **Stats** (labeled "2025 Stats") | The latest full year: annual summary, a month picker with that month's figures, and a "Visitors by month" chart. Click a column to select its month |
+| **Add Data** | Add, edit, or delete daily visitor counts for the current year. During the first week of January, last year's dates are allowed too |
 
-### Frontend
-- **React** 18.2.0 - UI library
-- **TypeScript** 5.2.2 - Type-safe JavaScript
-- **Vite** 6.4.1 - Fast build tool and dev server
-- **D3.js** 7.8.5 - Data visualization library
-- **Three.js** 0.160.0 - 3D graphics library
-- **Zustand** 4.4.1 - State management
-- **Tailwind CSS** 3.3.5 - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **Lucide React** - Icon library
+Each chart tab ends with **Key Insights**, the AI explanation (see [AI explanations](#ai-explanations)).
 
-### Backend
-- **Python** 3.8+
-- **FastAPI** 0.104.1 - Modern Python web framework
-- **Uvicorn** 0.24.0 - ASGI server
-- **Pandas** 2.1.1 - Data manipulation
-- **NumPy** 1.26.2 - Numerical computing
-- **Pydantic** 2.5.0 - Data validation
-- **SQLAlchemy** 2.0.23 - SQL toolkit and ORM
-- **Alembic** 1.12.1 - Database migrations
+## Requirements
 
-### Testing
-- **Vitest** 4.0.18 - Unit testing framework
-- **Playwright** 1.50.1 - End-to-end testing
-- **Testing Library** - React component testing
+- **Node.js 22.12 or newer** (see `.nvmrc`)
+- **Python 3.11 or 3.12.** Python 3.13 won't work: the pinned pandas 2.1.1 doesn't build on it.
+- **Ollama with Mistral** (optional): only needed for AI explanations. Everything else works without it.
 
-### Infrastructure
-- **Docker** - Containerization
-- **Docker Compose** - Multi-container orchestration
-- **SQLite** - Embedded database
-- **Ollama** - Local LLM inference (optional)
+## Getting started
 
-## 📋 Prerequisites
-
-- **Node.js 22.12+** (see `.nvmrc`)
-- **Python 3.8+**
-- **Docker & Docker Compose** (optional, for containerized deployment)
-- **Ollama** (optional, for AI explanations)
-
-## 🚀 Quick Start
-
-### Option 1: Docker Compose (Recommended)
-
-```bash
-# Start all services
-docker-compose up
-
-# Or run in detached mode
-docker-compose up -d
-```
-
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
-
-### Option 2: Manual Setup
-
-#### Backend Setup
+### 1. Backend
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python3.12 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python3 -m uvicorn main:app --reload
+python -m uvicorn main:app --reload --timeout-graceful-shutdown 5
 ```
 
-Backend runs at http://localhost:8000
+The API runs at <http://localhost:8000>, with interactive docs at <http://localhost:8000/docs>.
 
-#### Frontend Setup
+`--timeout-graceful-shutdown 5` matters during development: an AI explanation can take minutes, and without it, auto-reload waits for that request to finish before restarting.
+
+### 2. Frontend
 
 ```bash
 cd frontend
@@ -92,236 +47,162 @@ npm install
 npm run dev
 ```
 
-Frontend runs at http://localhost:5173
+Open <http://localhost:5173>.
 
-## 🤖 AI Explanations (Optional)
-
-To enable AI-powered chart explanations, install and run Ollama with the Mistral model:
+### 3. AI explanations (optional)
 
 ```bash
-# Install Ollama (macOS/Linux)
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Pull the Mistral model
+# Install Ollama from https://ollama.com, then:
 ollama pull mistral
-
-# Start Ollama server
-ollama serve
+ollama serve        # skip if the Ollama app is already running
 ```
 
-The application will automatically connect to Ollama and enable:
-- Natural language explanations for charts
-- Trend analysis and insights
-- Interactive data interpretation
+The backend finds Ollama at `http://localhost:11434` automatically. Without it, each chart shows how to set it up, and everything else still works.
+
+### Shortcut script
+
+`./dev.sh` wraps a few common commands: `install`, `dev` (starts backend and frontend together), `dev-docker`, `db-status`, `db-reset`, and `clean`. Note that `install` uses whatever `pip` is on your path rather than a virtual environment, and that `db-reset` and `clean` **delete the database** (see [Data](#data)).
+
+## AI explanations
+
+Explanations run on your own machine. On a laptop CPU, Mistral takes about **1–2 minutes** per explanation, and up to twice that if it needs a retry. After that the explanation is cached and loads instantly.
 
 ### How explanations are checked
 
-The model isn't trusted to get numbers right. Each explanation goes through these steps (see `backend/ai_service.py`):
+The model isn't trusted to get numbers right (see `backend/ai_service.py`):
 
-1. **Structured output.** Ollama is given a JSON schema, so the model must return a `summary` plus a list of `claims`. Each claim names a number and the data field it came from (for example `stats.visitors`). Temperature is 0 so results are consistent.
-2. **Number checking.** Every claim is compared with the actual value in the chart data. Numbers written in the summary are checked too, allowing for rounding (so "1.2 million" matches 1,234,567).
-3. **One retry with feedback.** If a claim is wrong or points to a field that doesn't exist, the model is told exactly what was wrong and tries once more.
-4. **Shown in the UI.** Each explanation shows whether every number matched, some couldn't be checked, or some didn't match. Click it to see each claim.
+1. **Clear data in.** Each chart sends the model a small summary with plainly named fields (for example `biggest_drop.visitors_lost`, or `average_per_year_last_10_years`), not raw API output.
+2. **Structured answer out.** Ollama is given a JSON schema, so the model must return a short `summary` and up to 4 `claims`. Each claim states a number and names the data field it came from. Temperature is 0, so the same data gets the same answer.
+3. **Every number is checked.** A claim passes only if the number written in its sentence matches the field it cites, allowing for rounding ("1.8 million" matches 1,806,865). Any other number in the summary is checked against the data too.
+4. **One retry.** If a claim is wrong or cites a field that doesn't exist, the model is told exactly what was wrong and tries once more.
+5. **Shown honestly.** Each explanation says whether every number matched, some couldn't be checked, or some didn't match. Click that line to see each claim.
 
-The prompts also tell the model to present causes (weather, holidays) as likely factors rather than facts.
+The backend also:
 
-Expect 1-2 minutes per explanation on a laptop CPU with Mistral, and twice that when a retry happens.
+- **Removes field names** the model copies into its text, such as "(record_year.visitors)".
+- **Explains 2020.** Any explanation that covers 2020 says that year's drop was an aberration caused by the park's two-month COVID-19 closure, not part of the long-term trend.
+- **Treats other causes as likely.** The model is told to present other causes, such as weather or holidays, as likely factors rather than facts.
 
 ### Caching
 
-Each explanation is saved in the `explanation_cache` table in `backend/arches.db` (see `backend/explanation_cache.py`), so a chart is only sent to the model once. After that it loads instantly, survives backend restarts, and is still shown if Ollama is stopped.
+Explanations are saved in the `explanation_cache` table of `backend/arches.db` (see `backend/explanation_cache.py`):
 
-- The cache key covers the model name and the full prompt, which includes the chart data. New data, a different `OLLAMA_MODEL`, or an edited prompt get a fresh explanation automatically. If you change how results are processed after the model answers, bump `CACHE_VERSION` in `explanation_cache.py`.
-- If two requests for the same chart arrive together, they share one model run. If the browser leaves mid-request, the run still finishes and is saved.
-- Errors and timeouts are not cached.
-- To clear the cache: `sqlite3 backend/arches.db "DELETE FROM explanation_cache"`.
+- **Only fully verified explanations are saved.** Anything with an unmatched or unchecked number is generated again next time.
+- **They update themselves.** The cache key covers the model name and the full prompt, which includes the chart data. New data, a different `OLLAMA_MODEL`, or an edited prompt get a fresh explanation. If you change how answers are processed after the model replies, bump `CACHE_VERSION` in `explanation_cache.py`.
+- **One run per chart.** Two requests for the same chart share one model run, and a run that's already started finishes and is saved even if the browser leaves the page.
+- **Cached explanations still load when Ollama is stopped.**
+- **To clear the cache:** `sqlite3 backend/arches.db "DELETE FROM explanation_cache"`
 
-API endpoints:
-- `POST /api/ai/explain-chart` - Generate chart explanations
-- `GET /api/ai/status` - Check AI service availability
+## Data
 
-## 📁 Project Structure
+The figures are National Park Service visitation statistics for Arches National Park:
+
+- **Monthly visitors, 1979 onward:** `Recreation Visitors By Month (1979 - Last Calendar Year).csv`
+- **Yearly totals for earlier years:** `Annual Park Recreation Visitation (1904 - Last Calendar Year).csv`. These fill in the years before monthly figures exist.
+
+On startup, the backend loads any CSV in `data/` that isn't in the database yet.
+
+**The database is the copy in git.** The CSVs in `data/` are git-ignored, but `backend/arches.db` is committed. So on a fresh clone, the database is the only copy of the data. `./dev.sh db-reset` and `./dev.sh clean` delete it, and with no CSVs it can't be rebuilt. To get it back:
+
+```bash
+git checkout backend/arches.db
+```
+
+**Corrections:** January 2025 is 31,944 visitors. The NPS CSV this project was built from says 31,870.
+
+## Development
+
+### Commands
+
+```bash
+# Frontend (in frontend/)
+npm run dev          # dev server on http://localhost:5173
+npm run build        # production build into dist/
+npm run preview      # serve the production build
+npm run lint         # ESLint 9 (config: eslint.config.js)
+npm run test         # unit tests (Vitest), watch mode
+npx vitest run       # unit tests, once
+npm run test:e2e     # end-to-end tests (Playwright)
+
+# Backend (in backend/, with the virtual environment active)
+pip install -r requirements-dev.txt
+python -m pytest     # unit tests
+```
+
+### Tests
+
+- **Frontend unit tests** (Vitest + Testing Library) cover components, stores, and the data summaries sent to the AI.
+- **Backend tests** (pytest) cover the number checker, the explanation service, the cache, and the API endpoint. They use a fake Ollama server and an in-memory database, so no model is needed and your real database isn't touched.
+- **End-to-end tests** (Playwright) cover the tabs (including keyboard use), each chart, selecting a month from the chart, the data entry form, the theme toggle, and phone width. They need the backend running on port 8000, and they start the frontend dev server if it isn't running. The AI endpoints are mocked, so the tests take seconds rather than minutes. Run `npx playwright install chromium` once to download the browser they use.
+
+### Project structure
 
 ```
 arches-visitation/
-├── backend/               # FastAPI backend
-│   ├── main.py           # Application entry point
-│   ├── ai_service.py     # AI/LLM integration
-│   ├── data_loader.py    # CSV data processing
-│   ├── database.py       # SQLAlchemy models
-│   ├── requirements.txt  # Python dependencies
-│   └── data/             # Parsed data cache
-├── frontend/             # React frontend
+├── backend/
+│   ├── main.py               # FastAPI app and endpoints
+│   ├── ai_service.py         # prompts, Ollama calls, number checking
+│   ├── explanation_cache.py  # SQLite cache for verified explanations
+│   ├── data_loader.py        # loads the CSVs into SQLite
+│   ├── database.py           # SQLAlchemy models
+│   ├── arches.db             # the data (committed)
+│   └── tests/
+├── frontend/
 │   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── store/        # Zustand stores
-│   │   ├── hooks/        # Custom React hooks
-│   │   ├── types/        # TypeScript definitions
-│   │   └── utils/        # Utility functions
-│   ├── e2e/              # Playwright tests
-│   ├── package.json      # Node dependencies
-│   └── vite.config.js    # Vite configuration
-├── data/                 # Source CSV files
-├── docker-compose.yml    # Docker orchestration
-└── .nvmrc                # Node version specification
+│   │   ├── components/       # dashboard, charts, AI explanation, data entry
+│   │   ├── utils/            # data summaries for the AI, formatting
+│   │   ├── store/            # Zustand stores (data, theme, explanations)
+│   │   ├── config/api.ts     # API endpoints and the GET response cache
+│   │   └── types/
+│   ├── tests/e2e/            # Playwright tests
+│   └── eslint.config.js
+├── data/                     # NPS CSVs (git-ignored)
+├── dev.sh
+└── docker-compose.yml
+```
 
-## 📜 Available Scripts
+## Configuration
 
-### Frontend
+**Frontend:** copy `frontend/.env.example` to `frontend/.env.local`:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_API_URL` | `http://localhost:8000` | Backend address |
+| `VITE_API_CACHE_TTL_MS` | `30000` | How long GET responses are reused in the browser |
+
+**Backend:** all optional:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Where Ollama runs |
+| `OLLAMA_MODEL` | `mistral` | Model used for explanations |
+| `OLLAMA_TIMEOUT_SECONDS` | `240` | Per-request limit. Ollama handles one request at a time, so a request can wait behind another |
+
+## Docker
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Create production build
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run test         # Run unit tests with Vitest
-npm run test:e2e     # Run end-to-end tests with Playwright
-npm run test:e2e:ui  # Run E2E tests in UI mode
+docker compose up --build
 ```
 
-### Backend
+This runs the frontend on port 5173 (Node 22) and the backend on port 8000 (Python 3.11), using the same `backend/arches.db` as a local setup. Stop any local dev servers first, because they use the same ports.
 
-```bash
-# In virtual environment
-uvicorn main:app --reload              # Development server with hot reload
-uvicorn main:app --host 0.0.0.0        # Expose on all interfaces
-python3 -m pytest                       # Run backend tests (if available)
-```
+For AI explanations, run Ollama on your own machine as usual: the backend container reaches it at `host.docker.internal:11434`.
 
-## 🧪 Testing
+## API
 
-The project includes comprehensive testing at multiple levels:
+| Method | Path | Returns |
+| --- | --- | --- |
+| GET | `/visitation/stats` | Headline statistics (excludes the current year) |
+| GET | `/visitation/annual` | Total visitors per year |
+| GET | `/visitation/timeseries` | Total visitors per month |
+| GET | `/visitation/heatmap` | Month-by-year grid |
+| GET | `/visitation/daily?year=` | Daily entries for a year |
+| POST | `/visitation/entry` | Add or update a daily entry |
+| DELETE | `/visitation/entry/{id}` | Delete a daily entry |
+| POST | `/api/ai/explain-chart` | AI explanation for a chart, with its checks |
+| GET | `/api/ai/status` | Whether Ollama is reachable |
+| GET | `/health` | Backend health and record count |
 
-### Unit Tests (Vitest)
-```bash
-cd frontend
-npm run test
+## License
 
-# Run with coverage
-npm run test -- --coverage
-```
-
-Tests include:
-- Component rendering and behavior
-- State management (Zustand stores)
-- Utility functions
-- Data formatting
-
-### End-to-End Tests (Playwright)
-```bash
-cd frontend
-npm run test:e2e
-
-# Run in UI mode for debugging
-npm run test:e2e:ui
-```
-
-### Backend Tests (pytest)
-```bash
-cd backend
-pip install -r requirements-dev.txt
-python -m pytest
-```
-
-Backend tests cover the number checker and the explanation service, using a fake Ollama server, so no model is needed.
-
-E2E tests cover:
-- Dashboard navigation
-- Data entry workflows
-- Chart interactions
-- Theme switching
-
-## ⚙️ Environment Variables
-
-### Frontend (.env.local)
-
-```env
-VITE_API_URL=http://localhost:8000
-VITE_API_CACHE_TTL_MS=30000
-```
-
-### Backend
-
-No environment variables required for basic operation. Optional configuration:
-- Database path (defaults to SQLite in project directory)
-- `OLLAMA_BASE_URL`: Ollama service URL (defaults to `http://localhost:11434`). In Docker, use `http://host.docker.internal:11434` to reach Ollama on your machine.
-- `OLLAMA_MODEL`: model name (defaults to `mistral`)
-- `OLLAMA_TIMEOUT_SECONDS`: per-request timeout (defaults to `240`; Ollama handles one request at a time, so a request can wait behind another)
-
-## 🎯 Key Features Explained
-
-### Data Visualizations
-- **Time Series Chart**: Interactive line charts showing visitation trends over time
-- **Monthly Heatmap**: Calendar heatmap displaying monthly patterns
-- **3D Rankings**: Three.js-powered 3D visualization of monthly park rankings
-
-### Data Management
-- Automatic CSV data import and processing
-- SQLite database with efficient querying
-- Pandas-based data transformation and aggregation
-
-### State Management
-- Zustand stores for theme and data state
-- Persistent theme preference (localStorage)
-- Optimized re-rendering with selectors
-
-### Performance Optimizations
-- Code splitting with dynamic imports
-- Lazy loading of visualizations
-- API response caching
-- Debounced user inputs
-- Minified production builds
-
-## 🐳 Docker Deployment
-
-The application is fully containerized for easy deployment:
-
-```bash
-# Build and start containers
-docker-compose up --build
-
-# Stop containers
-docker-compose down
-
-# View logs
-docker-compose logs -f
-
-# Rebuild specific service
-docker-compose up --build frontend
-```
-
-Services configured:
-- **frontend**: Vite dev server on port 5173
-- **backend**: Uvicorn on port 8000
-- **network**: Bridge network for inter-container communication
-
-## 📊 Data Sources
-
-The dashboard processes National Park Service visitation data from CSV files:
-- Annual recreation visitation (1904-present)
-- Monthly public use statistics
-- Overnight stays data
-- Recreation visitors by month
-
-Data files are located in the `/data` directory and automatically loaded on backend startup.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 🔗 Additional Resources
-
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [React Documentation](https://react.dev/)
-- [Vite Guide](https://vitejs.dev/guide/)
-- [D3.js Examples](https://observablehq.com/@d3/gallery)
-- [Three.js Documentation](https://threejs.org/docs/)
-- [Ollama Documentation](https://ollama.ai/)
+[MIT](LICENSE)
