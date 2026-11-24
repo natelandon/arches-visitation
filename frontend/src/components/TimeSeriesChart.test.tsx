@@ -28,6 +28,18 @@ describe('TimeSeriesChart Component', () => {
     })
   })
 
+  it('labels years on the annual axis without a thousands separator', () => {
+    // jsdom has no layout, so give the container a width or the chart won't draw
+    const width = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(800)
+    const { container } = render(<TimeSeriesChart useAnnualData />)
+    width.mockRestore()
+    const labels = [...container.querySelectorAll('.x-axis .tick text')].map(t => t.textContent ?? '')
+    const yearLabels = labels.filter(text => /^\d{4}$/.test(text))
+
+    expect(yearLabels.length).toBeGreaterThan(0)
+    expect(labels.some(text => /^\d,\d{3}$/.test(text))).toBe(false)
+  })
+
   it('renders chart container', () => {
     const { container } = render(<TimeSeriesChart />)
     const svg = container.querySelector('svg')

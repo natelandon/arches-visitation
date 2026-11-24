@@ -238,10 +238,14 @@ export default function TimeSeriesChart({ useAnnualData = false, excludeCurrentY
         .attr('d', line)
     }
 
-    // X Axis
+    // X Axis. Annual data uses a numeric scale, whose default format would
+    // print years with a thousands separator ("2,020"), so format them plainly.
+    const xAxis = d3.axisBottom(xScale as d3.AxisScale<d3.NumberValue>).tickSize(-height)
+    if (useAnnualData) xAxis.tickFormat(d3.format('d'))
     svg.append('g')
+      .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(xScale).tickSize(-height))
+      .call(xAxis)
       .attr('color', 'currentColor')
       .select('.domain').remove()
 
