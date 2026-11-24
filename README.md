@@ -188,6 +188,24 @@ This runs the frontend on port 5173 (Node 22) and the backend on port 8000 (Pyth
 
 For AI explanations, run Ollama on your own machine as usual: the backend container reaches it at `host.docker.internal:11434`.
 
+## Hosting on Vercel
+
+The app can run on Vercel's free Hobby plan as two projects from this repo:
+
+| Project | Root directory | Environment variables |
+| --- | --- | --- |
+| Backend (FastAPI) | `backend` | `READ_ONLY=1` |
+| Frontend (Vite) | `frontend` | `VITE_API_URL` = the backend's URL, `VITE_READ_ONLY=true` |
+
+Vercel's filesystem is read-only and it can't run Mistral, so the hosted site is a **read-only snapshot**:
+
+- **The data is the committed `backend/arches.db`,** opened read-only (`READ_ONLY=1`). Adding or deleting entries is refused, and the frontend hides **Add Data**.
+- **Explanations come only from the cache** in that database. Anything not cached says it hasn't been generated yet.
+
+To update the hosted site: change the data locally, open every tab and month in the local app with Ollama running so each explanation is generated and cached, then commit `backend/arches.db` and push. Each explanation is tied to the exact data it describes, so new data needs new explanations. That includes each new year: the Stats tab moves on to the next year every January.
+
+`backend/.python-version` pins Python 3.12 (the pinned pandas won't build on 3.13), and `backend/.vercelignore` keeps the virtual environment and tests out of the upload.
+
 ## API
 
 | Method | Path | Returns |

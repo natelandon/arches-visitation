@@ -1,0 +1,10 @@
+# Not needed by the deployed API. arches.db must stay: it is the data.
+.venv
+__pycache__
+tests
+*.log
+pytest.ini
+requirements-dev.txt
+Dockerfile
+.env*.local
+.vercel

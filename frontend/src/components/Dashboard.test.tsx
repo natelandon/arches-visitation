@@ -1,5 +1,5 @@
 import { mockStore } from '../test/mockStore'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import Dashboard from './Dashboard'
 import { useDataStore } from '../store/dataStore'
@@ -233,6 +233,24 @@ describe('Dashboard Component', () => {
         expect(t).toHaveAttribute('tabindex', selected ? '0' : '-1')
       }
       expect(tab(/Stats$/)).toHaveAttribute('tabindex', '0')
+    })
+  })
+
+  describe('read-only build', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('hides Add Data when VITE_READ_ONLY is true', () => {
+      vi.stubEnv('VITE_READ_ONLY', 'true')
+      render(<Dashboard />)
+      expect(screen.getAllByRole('tab')).toHaveLength(3)
+      expect(screen.queryByRole('tab', { name: 'Add Data' })).not.toBeInTheDocument()
+    })
+
+    it('shows Add Data otherwise', () => {
+      render(<Dashboard />)
+      expect(screen.getByRole('tab', { name: 'Add Data' })).toBeInTheDocument()
     })
   })
 })

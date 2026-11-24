@@ -2,16 +2,29 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from pathlib import Path
 import os
 
-# SQLite database
-DATABASE_URL = "sqlite:///./arches.db"
+# READ_ONLY=1 for hosts with a read-only filesystem (e.g. Vercel): the committed
+# database is opened read-only and nothing is written at startup or by requests.
+READ_ONLY = os.getenv("READ_ONLY") == "1"
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    echo=False
-)
+# Next to this file, so it doesn't depend on the directory the server starts in
+DB_PATH = Path(__file__).resolve().parent / "arches.db"
+
+
+def make_engine(path: Path, read_only: bool = False):
+    if read_only:
+        # immutable=1: SQLite creates no journal or lock files, which a
+        # read-only filesystem would refuse
+        return create_engine(
+            f"sqlite:///file:{path}?mode=ro&immutable=1&uri=true",
+            connect_args={"check_same_thread": False},
+        )
+    return create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False})
+
+
+engine = make_engine(DB_PATH, READ_ONLY)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

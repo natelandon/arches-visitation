@@ -120,6 +120,10 @@ const TabButton = memo(({ tab, id, isActive, onClick, onPrefetch }: TabButtonPro
 
 export default function Dashboard(): JSX.Element {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
+  // Hosted read-only builds (VITE_READ_ONLY=true) can't change data
+  const tabs = import.meta.env.VITE_READ_ONLY === 'true'
+    ? TABS.filter(tab => tab.id !== 'data-entry')
+    : TABS
   const [selectedMonth, setSelectedMonth] = useState<number>(12)
   const stats = useDataStore((state) => state.stats)
   const visitation = useDataStore((state) => state.visitation)
@@ -219,7 +223,7 @@ export default function Dashboard(): JSX.Element {
           aria-label="Dashboard sections"
           onKeyDown={handleTabListKeyDown}
         >
-          {TABS.map(tab => (
+          {tabs.map(tab => (
             <TabButton
               key={tab.id}
               tab={tab}

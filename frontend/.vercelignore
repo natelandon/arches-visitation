@@ -1,0 +1,6 @@
+# Local-only files: the CLI token and local env overrides
+.env*.local
+.vercel
+node_modules
+dist
+test-results

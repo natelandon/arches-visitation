@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 import logging
 
-from database import init_db, get_db, VisitationRecord
+from database import READ_ONLY, init_db, get_db, VisitationRecord
 from data_loader import load_all_csv_data
 from ai_service import AIServiceError, ChartType, explanation_service
 from explanation_cache import ExplanationCache
@@ -39,9 +39,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def require_writable():
+    """Dependency for endpoints that change data; refused in read-only mode."""
+    if READ_ONLY:
+        raise HTTPException(status_code=403, detail="This deployment is read-only.")
+
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize database and load data on startup"""
+    if READ_ONLY:
+        logger.info("Read-only mode: using the committed database as is")
+        return
     logger.info("Initializing database...")
     init_db()
     logger.info("Loading CSV data...")
@@ -259,7 +268,7 @@ async def get_heatmap_data(db: Session = Depends(get_db)):
         logger.error(f"Error getting heatmap data: {e}")
         return []
 
-@app.post("/visitation/entry")
+@app.post("/visitation/entry", dependencies=[Depends(require_writable)])
 async def add_visitation_entry(entry: VisitationEntry, db: Session = Depends(get_db)):
     """Add a new daily visitation entry or update existing one"""
     try:
@@ -347,7 +356,7 @@ async def get_daily_records(year: int = None, db: Session = Depends(get_db)):
         logger.error(f"Error getting daily records: {e}")
         return []
 
-@app.delete("/visitation/entry/{entry_id}")
+@app.delete("/visitation/entry/{entry_id}", dependencies=[Depends(require_writable)])
 async def delete_visitation_entry(entry_id: int, db: Session = Depends(get_db)):
     """Delete a visitation entry by ID"""
     try:
@@ -395,6 +404,14 @@ async def explain_chart(request: AIExplanationRequest):
     if cached is not None:
         return {"available": True, "cached": True, **cached.model_dump()}
 
+    if READ_ONLY:
+        # Hosted without a model: only pre-generated explanations exist
+        return {
+            "explanation": "An explanation for this chart hasn't been generated yet.",
+            "available": False,
+            "reason": "error",
+        }
+
     service = explanation_cache.service
     if not await service.is_available():
         return {
@@ -420,6 +437,9 @@ async def explain_chart(request: AIExplanationRequest):
 @app.get("/api/ai/status")
 async def ai_status():
     """Check if AI explanation service is available"""
+    if READ_ONLY:
+        # Explanations are served from the cache; no model runs here
+        return {"available": True, "service": "cache", "endpoint": None, "default_model": explanation_service.model}
     available = await explanation_service.is_available()
     return {
         "available": available,
