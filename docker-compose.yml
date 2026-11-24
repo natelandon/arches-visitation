@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   frontend:
     build: ./frontend
@@ -27,6 +25,10 @@ services:
       - arches-network
     environment:
       - PYTHONUNBUFFERED=1
+      # Ollama runs on the host machine, not in a container
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # needed on Linux; built in on Docker Desktop
 
 networks:
   arches-network:
